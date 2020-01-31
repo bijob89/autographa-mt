@@ -83,22 +83,22 @@ class LoginPage extends Component {
         this.authenticate()
     }
 
-    componentDidMount() {
-        let decoded;
-        var accessToken = localStorage.getItem('access_token')
-        if (accessToken) {
-            decoded = jwt_decode(accessToken)
-            let currentDate = new Date().getTime()
-            let expiry = decoded.exp * 1000
-            var hours = (expiry - currentDate) / 36e5
-            if (hours > 0) {
-                console.log("logged in")
-                this.setState({ redirect: true })
-            } else {
-                console.log("logged out")
-            }
-        }
-    }
+    // componentDidMount() {
+    //     let decoded;
+    //     var accessToken = localStorage.getItem('access_token')
+    //     if (accessToken) {
+    //         decoded = jwt_decode(accessToken)
+    //         let currentDate = new Date().getTime()
+    //         let expiry = decoded.exp * 1000
+    //         var hours = (expiry - currentDate) / 36e5
+    //         if (hours > 0) {
+    //             console.log("logged in")
+    //             this.setState({ redirect: true })
+    //         } else {
+    //             console.log("logged out")
+    //         }
+    //     }
+    // }
 
     handleClose = () => {
         this.setState({ forgotPasswordDailogOpen: false, verificationCodeDialogOpen: false, verifiedSuccess: false })
@@ -169,7 +169,7 @@ class LoginPage extends Component {
     render() {
         const { redirect } = this.state;
         if (redirect) {
-            return <Redirect to='/dashboard' />
+            return <Redirect to='/app' />
         }
         //cons
         const { classes } = this.props

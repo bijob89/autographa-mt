@@ -10,13 +10,41 @@ import { withStyles } from '@material-ui/styles';
 import apiUrl from '../GlobalUrl';
 import PopUpMessages from '../PopUpMessages';
 import { connect } from 'react-redux';
+import { fetchOrganisations, updateOrganisationVerifiedStatus } from '../../store/actions/organisationActions';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
 import { displaySnackBar } from '../../store/actions/sourceActions';
+
+import { Switch } from '@material-ui/core';
+import MUIDataTable from "mui-datatables";
+
 
 const styles = theme => ({
     root: {
-        display: 'flex',
         flexGrow: 1,
+        // padding: theme.spacing(2),
+        padding: '16px'
+        // backgroundColor: '#ededf4',
+        // minHeight: '100%'
     },
+    cursorPointer: {
+      cursor: 'pointer',
+      backgroundColor: '#fff',
+      '&:hover': {
+          background: '#ededf4',
+      },
+    },
+    cardHover: {
+        backgroundColor: '#100f0ffa',
+        '&:hover': {
+            background: "#f00",
+        },
+    },
+    fab: {
+        position: 'absolute',
+        bottom: '16px',
+        right: '16px',
+    }
 });
 
 const accessToken = localStorage.getItem('accessToken')
@@ -29,151 +57,116 @@ class ListOrganisations extends Component {
         admin: '',
         snackBarOpen: false,
         popupdata: {},
-    }
-
-    async getOrganisations(){
-        // const {organisationsStatus} = this.props.data
-
-        const data = await fetch(apiUrl + '/v1/autographamt/organisations', {
-            method:'GET',
-            headers: {
-                Authorization: 'bearer ' + accessToken
-            }
-        })
-        const organisationsData = await data.json()
-        let organisationsStatus = {}
-        if("success" in organisationsData){
-            this.props.displaySnackBar({
-
-                snackBarMessage: organisationsData.message,
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-        }else{
-            organisationsData.map(item => {
-                organisationsStatus[item.organisationId] = {
-                    "verified":item.verified
+        columns: [
+            {
+                name: 'id',
+                options: {    
+                    display: false,
+                    filter: false
                 }
-            })
-            this.setState({
-                organisationsStatus:organisationsStatus, 
-                organisationsData: organisationsData,
-            })
-
-        }
-    }
-
-    componentDidMount(){
-        this.getOrganisations()
-    }
-
-    async verifyOrganisation(verified, organisationId){
-        try{
-            const apiData = {
-                organisationId: organisationId,
-                verified: verified
-            }
-            const data = await fetch(apiUrl + 'v1/autographamt/approvals/organisations', {
-                method: 'POST',
-                body: JSON.stringify(apiData),
-                headers: {
-                    Authorization: 'bearer ' + accessToken
+            },
+            {
+                name: 'Organisation Name',
+                options: {
+                    filter: true
                 }
-            })
-            const response = await data.json()
-            if(response.success){
-                this.getOrganisations()
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "success"
-                })
-                // this.setState({ snackBarOpen: true, popupdata: { variant: "success", message: response.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-            }else{
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "error"
-                })
-                // this.setState({ snackBarOpen: true, popupdata: { variant: "error", message: response.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-            }
-        }
-        catch(ex){
-            this.props.displaySnackBar({
-                snackBarMessage: "Server error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-            // this.setState({ snackBarOpen: true, popupdata: { variant: "error", message: "Server Error", snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-        }
-    }
-
-    closeSnackBar = (item) => {
-        this.setState(item)
-    }
-
-    handleChange = (organisationId) => {
-        const { organisationsStatus } = this.state
-        const verified = !organisationsStatus[organisationId]["verified"]
-        this.verifyOrganisation(verified, organisationId)
-        organisationsStatus[organisationId]["verified"] = verified
-        this.setState({ organisationId, organisationsStatus: organisationsStatus })
-        // updateState({  })
-    }
-
-    getTableRows() {
-        const { organisationsData, organisationsStatus } = this.state
-        if (organisationsData){
-            return organisationsData.map(org => {
-                return (
-                    <TableRow key={org.organisationId}>
-                        <TableCell align="right">{org.organisationName}</TableCell>
-                        <TableCell align="right">{org.organisationAddress}</TableCell>
-                        <TableCell align="right">{org.organisationEmail}</TableCell>
-                        <TableCell align="right">{org.organisationPhone}</TableCell>
-                        <TableCell align="right">{org.userId}</TableCell>
-                        <TableCell align="right">
-                            <Checkbox
-                                checked={organisationsStatus[org.organisationId]["verified"]}
-                                onChange={(e) => this.handleChange(org.organisationId)}
+            },
+            {
+                name: 'Email',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Address',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Phone',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Verified',
+                options: {
+                    filter: false,
+                    customBodyRender: (value, row) => {
+                        return <Switch
+                                checked={value}
+                                onChange={() => this.updateOrganisationStatus(row.rowData[0], !value)}
                             />
-                        </TableCell>
-                    </TableRow>
-                )
-            })
-
-        }
+                    }
+                }
+            },
+            {
+                name: 'Admin Id',
+                options: {
+                    filter: true,
+                    display: false
+                }
+            }
+        ]
     }
+
+    updateOrganisationStatus = (organisationId, status) => {
+        const { dispatch } = this.props;
+        const apiData = {
+            organisationId: organisationId,
+            verified: status
+        }
+        dispatch(updateOrganisationVerifiedStatus(apiData))
+    }
+    
+    componentDidMount(){
+        // this.getOrganisations()
+        const { dispatch } = this.props;
+        dispatch(fetchOrganisations())
+    }
+
     render() {
-        const {  classes } = this.props
+        const {  classes, organisations } = this.props;
+        const { columns } = this.state;
+        const data = organisations.map(organisation => {
+            return [
+                organisation.organisationId,
+                organisation.organisationName,
+                organisation.organisationEmail,
+                organisation.organisationAddress,
+                organisation.organisationPhone,
+                organisation.verified,
+                organisation.userId,
+            ]
+        });
+        const options = {
+            selectableRows: false,
+          };
         return (
-            <Paper>
-            <ComponentHeading data={{classes:classes, text:"Organisations List", styleColor:"#2a2a2fbd"}} />
-            <PopUpMessages />
-                <Table className={classes.table}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="right">Name</TableCell>
-                            <TableCell align="right">Address</TableCell>
-                            <TableCell align="right">Email Id</TableCell>
-                            <TableCell align="right">Phone</TableCell>
-                            <TableCell align="right">User Id</TableCell>
-                            <TableCell align="right">Verified</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {this.getTableRows()}
-                    </TableBody>
-                </Table>
-            </Paper>
+            <div className={classes.root}>
+                <PopUpMessages />
+                <MUIDataTable 
+                    title={"Organisations List"} 
+                    data={data} 
+                    columns={columns} 
+                    options={options} 
+                />
+                <Fab aria-label={'add'} className={classes.fab} color={'primary'}>
+                <AddIcon />
+          </Fab>
+            </div>
         )
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(ListOrganisations))
+const mapStateToProps = state => ({
+    organisations: state.organisation.organisations
+})
+
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ListOrganisations))

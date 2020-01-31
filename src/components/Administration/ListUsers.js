@@ -10,16 +10,40 @@ import apiUrl from '../GlobalUrl'
 import PopUpMessages from '../PopUpMessages'
 import { displaySnackBar } from '../../store/actions/sourceActions'
 import { withStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
+
+
+import { fetchUsers, updateAdminStatus } from '../../store/actions/userActions';
+
+
+import { Switch } from '@material-ui/core';
+import MUIDataTable from "mui-datatables";
 
 const accessToken = localStorage.getItem('accessToken')
 
 const styles = theme => ({
     root: {
-        display: 'flex',
         flexGrow: 1,
+        // padding: theme.spacing(2),
+        padding: '16px'
+        // backgroundColor: '#ededf4',
+        // minHeight: '100%'
+    },
+    cursorPointer: {
+      cursor: 'pointer',
+      backgroundColor: '#fff',
+      '&:hover': {
+          background: '#ededf4',
+      },
+    },
+    cardHover: {
+        backgroundColor: '#100f0ffa',
+        '&:hover': {
+            background: "#f00",
+        },
     },
 });
+
 
 class ListUsers extends Component {
     state = {
@@ -28,89 +52,67 @@ class ListUsers extends Component {
         snackBarOpen: false,
         popupdata: {},
         userData:[], 
-        userStatus: {}
-    }
-
-    async getUsers(){
-        const { userStatus} = this.state
-        const data = await fetch(apiUrl + '/v1/autographamt/users', {
-            method:'GET',
-            headers: {
-                "Authorization": 'bearer ' + accessToken
-            }
-        })
-        const userData = await data.json()
-        if("success" in userData){
-            this.props.displaySnackBar({
-                snackBarMessage: userData.message,
-                snackBarOpen: true,
-                snackBarVariant: (userData.success) ? "success" : "error"
-            })
-        }else{
-            userData.map(item => {
-                if(item.roleId > 1){
-                    userStatus[item.userId] = {
-                        "admin":true,
-                        "verified":item.verified
-                    }
-                }else{
-                    userStatus[item.userId] = {
-                        "admin":false,
-                        "verified":item.verified
+        userStatus: {},
+        columns: [
+            {
+                name: 'id',
+                options: {    
+                    display: false,
+                    filter: false
+                }
+            },
+            {
+                name: 'Name',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Email',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Verified',
+                options: {
+                    filter: false,
+                    customBodyRender: (value, row) => {
+                        // console.log(rowIndex)
+                        return <Switch
+                                checked={value}
+                                // onChange={() => this.changeAdminStatus(row.rowData[0], !value)}
+                            />
                     }
                 }
-            })
-            this.setState({userData:userData, userStatus:userStatus})
-        }
+            },
+            {
+                name: 'Admin',
+                options: {
+                    filter: false,
+                    customBodyRender: (value, row) => {
+                        return <Switch
+                                checked={value}
+                                onChange={() => this.changeAdminStatus(row.rowData[0], !value)}
+                            />
+                    }
+                }
+            }
+        ]
     }
 
     componentDidMount(){
-        this.getUsers()
+        const { dispatch } = this.props;
+        dispatch(fetchUsers())
     }
 
-    async userAdminAssignment(admin, userId){
-        try{
-            const apiData = {
-                userId: userId,
-                admin: admin
-            }
-            const data = await fetch(apiUrl + 'v1/autographamt/approvals/users', {
-                method: 'POST',
-                body: JSON.stringify(apiData),
-                headers: {
-                    Authorization: 'bearer ' + accessToken
-                }
-            })
-            const response = await data.json()
-            if(response.success){
-                this.getUsers()
-                // this.setState({ snackBarOpen: true, popupdata: { variant: "success", message: response.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-                // this.getOrganisations()
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "success"
-                    
-                })
-            }else{
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "error"
-                    
-                })
-                // this.setState({ snackBarOpen: true, popupdata: { variant: "error", message: response.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-            }
+    changeAdminStatus = (userId, status) => {
+        const { dispatch } = this.props;
+        const apiData = {
+            userId: userId,
+            admin: status
         }
-        catch(ex){
-            this.props.displaySnackBar({
-                snackBarMessage: "Server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-                
-            })
-            // this.setState({ snackBarOpen: true, popupdata: { variant: "error", message: "Server Error", snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-        }
+        dispatch(updateAdminStatus(apiData));
     }
 
     handleChange = (userId) => {
@@ -125,67 +127,41 @@ class ListUsers extends Component {
         this.setState(item)
     }
 
-
-    getTableRows() {
-        const { userData, userStatus } = this.state
-        return userData.map(user => {
-            return (
-                <TableRow key={user.userId}>
-                    <TableCell align="right">{user.firstName + " " + user.lastName}</TableCell>
-                    <TableCell align="right">{user.emailId}</TableCell>
-                    <TableCell align="right">
-                        <Checkbox
-                            checked={userStatus[user.userId]["admin"]}
-                            onChange={(e) => this.handleChange(user.userId)}
-                        // value={}
-                        />
-                    </TableCell>
-                    <TableCell align="right">
-                        <Checkbox
-                            disabled
-                            checked={userStatus[user.userId]["verified"]}
-                            onChange={(e) => this.handleChange(user.userId)}
-                        // value={}
-                        />
-                    </TableCell>
-                </TableRow>
-            )
-        })
-    }
     render() {
-        const { classes } = this.props
+        const {  classes, users } = this.props;
+        const { columns } = this.state;
+        const data = users.map(user => {
+            return [
+                user.userId,
+                user.firstName + " " + user.lastName,
+                user.emailId,
+                user.verified,
+                user.roleId > 1
+            ]
+        });
+        const options = {
+            selectableRows: false,
+          };
         return (
-            <Paper>
-                <ComponentHeading data={{ classes: classes, text: "Users List", styleColor:"#2a2a2fbd" }} />
+            <div className={classes.root}>
                 <PopUpMessages />
-                <Table className={classes.table}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="right">Name</TableCell>
-                            <TableCell align="right">Email Id</TableCell>
-                            <TableCell align="right">Administrator</TableCell>
-                            <TableCell align="right">Verified User</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {this.getTableRows()}
-                    </TableBody>
-                </Table>
-            </Paper>
+                <MUIDataTable 
+                    title={"Users List"} 
+                    data={data} 
+                    columns={columns} 
+                    options={options} 
+                />
+            </div>
         )
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        accessToken: state.auth.accessToken,
-    }
-}
+const mapStateToProps = (state) => ({
+    users: state.user.users
+})
 
-const mapDispatchToProps = (dispatch) => {
-    return{
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ListUsers))

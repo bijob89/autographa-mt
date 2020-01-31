@@ -2,13 +2,15 @@ import React, { Component } from 'react'
 // import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import { Typography, CardContent } from '@material-ui/core';
+import { Typography, CardContent, Paper } from '@material-ui/core';
 import apiUrl from '../GlobalUrl';
 import { Card } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { displaySnackBar, selectProject } from '../../store/actions/sourceActions'
+import { fetchProjects } from '../../store/actions/projectActions';
 import { connect } from 'react-redux'
 import PopUpMessages from '../PopUpMessages';
+import MUIDataTable from "mui-datatables";
 
 
 const accessToken = localStorage.getItem('accessToken')
@@ -37,7 +39,40 @@ const styles = theme => ({
 
 class ListProjects extends Component {
     state = {
-        projectLists:[]
+        projectLists:[],
+        columns: [
+            {
+                name: 'id',
+                options: {    
+                    display: false,
+                    filter: false
+                }
+            },
+            {
+                name: 'Project Name',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Project Code',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Organisation',
+                options: {
+                    filter: true
+                }
+            },
+            {
+                name: 'Source',
+                options: {
+                    filter: true
+                }
+            }
+        ]
     }
 
     async getProjectsList(){
@@ -50,8 +85,9 @@ class ListProjects extends Component {
                 }
             })
             const projectLists = await data.json()
+            console.log('projects list', projectLists)
             this.setState({projectLists})
-            updateState({projectLists: projectLists})
+            // updateState({projectLists: projectLists})
         }
         catch(ex){
             this.props.displaySnackBar({
@@ -63,7 +99,9 @@ class ListProjects extends Component {
     }
 
     componentDidMount(){
-        this.getProjectsList()
+        // this.getProjectsList()
+        const { dispatch } = this.props;
+        dispatch(fetchProjects());
     }
 
     handleProjects = (projectId) => {
@@ -109,28 +147,52 @@ class ListProjects extends Component {
     }
 
     render() {
-        const { classes } = this.props;
+        const { classes, projects } = this.props;
+        console.log('List projects', this.props);
+        const { columns } = this.state;
+        // const columns = ["Name", "Company", "City", "State"];
+        const data = projects.map(project => {
+            return [
+                project.projectId, 
+                project.projectName.split('|')[0], 
+                project.projectName.split('|')[1], 
+                project.organisationName, 
+                project.version.name
+            ]
+        });
+// const data = [
+//  ["Joe James", "Test Corp", "Yonkers", ],
+//  ["John Walsh", "Test Corp", "Hartford", ],
+//  ["Bob Herm", "Test Corp", "Tampa", ],
+//  ["James Houston", "Test Corp", "Dallas", ],
+// ];
+
+
+
+const options = {
+  selectableRows: false,
+};
         return (
         <div className={classes.root}>
             <PopUpMessages />
-            <Grid 
-                container
-                spacing={1}
-                style={{border:'1px solid #eee', padding:'10px'}}
-                >
-                    {this.displayProjectCards()}
-            </Grid>
+            <MUIDataTable 
+                title={"Projects List"} 
+                data={data} 
+                columns={columns} 
+                options={options} 
+            />
         </div>
         )
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return{
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp)),
-        selectProject: (project) => dispatch(selectProject(project))
-    }
-}
+const mapStateToProps = (state) => ({
+    projects: state.project.projects
+})
+
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(ListProjects));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ListProjects));
