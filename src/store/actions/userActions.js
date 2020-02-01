@@ -1,5 +1,6 @@
 import { SET_USERS, SET_IS_FETCHING } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
+import swal from 'sweetalert';
 
 const accessToken = localStorage.getItem('accessToken');
 
@@ -28,8 +29,21 @@ export const updateAdminStatus = (data) => async dispatch => {
     const response = await update.json();
     if (response.success){
         dispatch(fetchUsers());
+        swal({
+            title: 'User status',
+            text: 'User status has been updated successfully',
+            icon: 'success'
+        })
+    } else {
+        swal({
+            title: 'User status',
+            text: 'User status could not be updated. Please try later',
+            icon: 'error'
+        })
     }
     dispatch(setIsFetching(false))
+    
+    
 };
 
 export const setUsers = (users) => ({

@@ -1,5 +1,6 @@
 import { SET_ORGANISATIONS, SET_IS_FETCHING } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
+import swal from 'sweetalert';
 
 const accessToken = localStorage.getItem('accessToken');
 
@@ -29,6 +30,17 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
     console.log('response', response)
     if(response.success) {
         dispatch(fetchOrganisations());
+        swal({
+            title: 'Organisation status',
+            text: 'Organisation status has been updated successfully',
+            icon: 'success'
+        })
+    } else {    
+        swal({
+            title: 'Organisation status',
+            text: 'Organisation status could not be updated. Please try again later',
+            icon: 'error'
+        })
     }
     dispatch(setIsFetching(false));
 }

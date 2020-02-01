@@ -4,7 +4,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TableHead from '@material-ui/core/TableHead';
-import { Checkbox, Paper } from '@material-ui/core';
+import { Checkbox, Paper, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import ComponentHeading from '../ComponentHeading';
 import { withStyles } from '@material-ui/styles';
 import apiUrl from '../GlobalUrl';
@@ -15,10 +15,31 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import { displaySnackBar } from '../../store/actions/sourceActions';
 import CircleLoader from '../loaders/CircleLoader';
+import CreateOrganisation from './CreateOrganisation';
 
 import { Switch } from '@material-ui/core';
 import MUIDataTable from "mui-datatables";
 
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+      MUIDataTable: {
+        root: {
+        },
+        paper: {
+          boxShadow: "none",
+        }
+      },
+      MUIDataTableBodyRow: {
+        root: {
+          '&:nth-child(odd)': { 
+            backgroundColor: '#eaeaea'
+          }
+        }
+      },
+      MUIDataTableBodyCell: {
+      }
+    }
+  })
 
 const styles = theme => ({
     root: {
@@ -52,12 +73,7 @@ const accessToken = localStorage.getItem('accessToken')
 
 class ListOrganisations extends Component {
     state = {
-        organisationDetails:[],
-        organisationsStatus: '',
-        organisationId: '',
-        admin: '',
-        snackBarOpen: false,
-        popupdata: {},
+        open: false,
         columns: [
             {
                 name: 'id',
@@ -122,14 +138,17 @@ class ListOrganisations extends Component {
     }
     
     componentDidMount(){
-        // this.getOrganisations()
         const { dispatch } = this.props;
         dispatch(fetchOrganisations())
     }
 
+    handleClose = () => {
+        this.setState({open: false})
+    }
+
     render() {
         const {  classes, organisations, isFetching } = this.props;
-        const { columns } = this.state;
+        const { columns, open } = this.state;
         const data = organisations.map(organisation => {
             return [
                 organisation.organisationId,
@@ -148,15 +167,18 @@ class ListOrganisations extends Component {
             <div className={classes.root}>
                 <PopUpMessages />
                 { isFetching && <CircleLoader />}
+                <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable 
                     title={"Organisations List"} 
                     data={data} 
                     columns={columns} 
                     options={options} 
                 />
-                <Fab aria-label={'add'} className={classes.fab} color={'primary'}>
-                <AddIcon />
-          </Fab>
+                </MuiThemeProvider>
+                <CreateOrganisation open={open} close={this.handleClose} />
+                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
+                    <AddIcon />
+                </Fab>
             </div>
         )
     }

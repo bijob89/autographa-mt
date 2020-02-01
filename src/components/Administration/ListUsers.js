@@ -4,7 +4,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TableHead from '@material-ui/core/TableHead';
-import { Checkbox, Paper } from '@material-ui/core';
+import { Checkbox, Paper, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import ComponentHeading from '../ComponentHeading';
 import apiUrl from '../GlobalUrl'
 import PopUpMessages from '../PopUpMessages'
@@ -21,6 +21,27 @@ import { Switch } from '@material-ui/core';
 import MUIDataTable from "mui-datatables";
 
 const accessToken = localStorage.getItem('accessToken')
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+      MUIDataTable: {
+        root: {
+        },
+        paper: {
+          boxShadow: "none",
+        }
+      },
+      MUIDataTableBodyRow: {
+        root: {
+          '&:nth-child(odd)': { 
+            backgroundColor: '#eaeaea'
+          }
+        }
+      },
+      MUIDataTableBodyCell: {
+      }
+    }
+  })
 
 const styles = theme => ({
     root: {
@@ -147,12 +168,14 @@ class ListUsers extends Component {
             <div className={classes.root}>
                 <PopUpMessages />
                 { isFetching && <CircleLoader />}
+                <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable 
                     title={"Users List"} 
                     data={data} 
                     columns={columns} 
                     options={options} 
                 />
+                </MuiThemeProvider>
             </div>
         )
     }

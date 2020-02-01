@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import { Typography, CardContent, Paper } from '@material-ui/core';
+import { Typography, CardContent, Paper, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import apiUrl from '../GlobalUrl';
 import { Card } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
@@ -12,9 +12,32 @@ import CircleLoader from '../loaders/CircleLoader';
 import { connect } from 'react-redux'
 import PopUpMessages from '../PopUpMessages';
 import MUIDataTable from "mui-datatables";
-
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import CreateProject from './CreateProject';
 
 const accessToken = localStorage.getItem('accessToken')
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+      MUIDataTable: {
+        root: {
+        },
+        paper: {
+          boxShadow: "none",
+        }
+      },
+      MUIDataTableBodyRow: {
+        root: {
+          '&:nth-child(odd)': { 
+            backgroundColor: '#eaeaea'
+          }
+        }
+      },
+      MUIDataTableBodyCell: {
+      }
+    }
+  })
 
 const styles = theme => ({
     root: {
@@ -36,11 +59,16 @@ const styles = theme => ({
             background: "#f00",
         },
     },
+    fab: {
+        position: 'fixed',
+        bottom: '16px',
+        right: '16px',
+    }
 });
 
 class ListProjects extends Component {
     state = {
-        projectLists:[],
+        open: false,
         columns: [
             {
                 name: 'id',
@@ -76,82 +104,18 @@ class ListProjects extends Component {
         ]
     }
 
-    async getProjectsList(){
-        try{
-            const { updateState } = this.props
-            const data = await fetch(apiUrl + '/v1/autographamt/projects', {
-                method:'GET',
-                headers: {
-                    "Authorization": 'bearer ' + accessToken
-                }
-            })
-            const projectLists = await data.json()
-            console.log('projects list', projectLists)
-            this.setState({projectLists})
-            // updateState({projectLists: projectLists})
-        }
-        catch(ex){
-            this.props.displaySnackBar({
-            snackBarMessage: "Server error",
-            snackBarOpen: true,
-            snackBarVariant: "error"
-            })
-        }
-    }
-
     componentDidMount(){
-        // this.getProjectsList()
         const { dispatch } = this.props;
         dispatch(fetchProjects());
     }
 
-    handleProjects = (projectId) => {
-        const { updateState, projectLists, selectProject } = this.props
-        const project = projectLists.find(item => item.projectId === projectId)
-
-        updateState({
-            listUsersPane: false,
-            listOrganisationsPane:false,
-            createProjectsPane:false,
-            listProjectsPane: false,
-            assignmentsPane: true,
-        })
-        selectProject({
-            project
-        })
-    }
-
-    displayProjectCards(){
-        const { classes } = this.props
-        const { projectLists } = this.state
-        if(projectLists){
-            return projectLists.map(project => {
-                return (
-                    <Grid item xs={12} sm={6} md={3} key={project.projectId} style={{gridRowGap:'3px'}}>
-                        <Card onClick={() => this.handleProjects(project.projectId)} className={classes.cursorPointer}>
-                            <CardHeader
-                                title={`Organisation: ${project.organisationName}`}
-                                subheader={`Organisation: ${project.organisationName}`} />
-                            <CardContent>
-                                <Typography varian="h5" gutterBottom>
-                                    {project.projectName.split(" ")[0]}
-                                </Typography>
-                                <Typography varian="h5" gutterBottom>
-                                    {project.projectName.split(" ")[1]}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                )
-            })
-        }
+    handleClose = () => {
+        this.setState({open: false})
     }
 
     render() {
         const { classes, projects, isFetching } = this.props;
-        console.log('List projects', this.props);
-        const { columns } = this.state;
-        // const columns = ["Name", "Company", "City", "State"];
+        const { columns, open } = this.state;
         const data = projects.map(project => {
             return [
                 project.projectId, 
@@ -161,29 +125,26 @@ class ListProjects extends Component {
                 project.version.name
             ]
         });
-// const data = [
-//  ["Joe James", "Test Corp", "Yonkers", ],
-//  ["John Walsh", "Test Corp", "Hartford", ],
-//  ["Bob Herm", "Test Corp", "Tampa", ],
-//  ["James Houston", "Test Corp", "Dallas", ],
-// ];
-
-
-
-const options = {
-  selectableRows: false,
-};
+        const options = {
+            selectableRows: false,
+        };
         return (
-        <div className={classes.root}>
-            <PopUpMessages />
-            { isFetching && <CircleLoader />}
-            <MUIDataTable 
-                title={"Projects List"} 
-                data={data} 
-                columns={columns} 
-                options={options} 
-            />
-        </div>
+            <div className={classes.root}>
+                <PopUpMessages />
+                { isFetching && <CircleLoader />}
+                <MuiThemeProvider theme={getMuiTheme()}>
+                <MUIDataTable 
+                    title={"Projects List"} 
+                    data={data} 
+                    columns={columns} 
+                    options={options} 
+                />
+                </MuiThemeProvider>
+                <CreateProject open={open} close={this.handleClose} />
+                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
+                    <AddIcon />
+                </Fab>
+            </div>
         )
     }
 }
