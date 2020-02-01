@@ -8,6 +8,7 @@ import { Card } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { displaySnackBar, selectProject } from '../../store/actions/sourceActions'
 import { fetchProjects } from '../../store/actions/projectActions';
+import CircleLoader from '../loaders/CircleLoader';
 import { connect } from 'react-redux'
 import PopUpMessages from '../PopUpMessages';
 import MUIDataTable from "mui-datatables";
@@ -147,7 +148,7 @@ class ListProjects extends Component {
     }
 
     render() {
-        const { classes, projects } = this.props;
+        const { classes, projects, isFetching } = this.props;
         console.log('List projects', this.props);
         const { columns } = this.state;
         // const columns = ["Name", "Company", "City", "State"];
@@ -175,6 +176,7 @@ const options = {
         return (
         <div className={classes.root}>
             <PopUpMessages />
+            { isFetching && <CircleLoader />}
             <MUIDataTable 
                 title={"Projects List"} 
                 data={data} 
@@ -187,7 +189,8 @@ const options = {
 }
 
 const mapStateToProps = (state) => ({
-    projects: state.project.projects
+    projects: state.project.projects,
+    isFetching: state.project.isFetching
 })
 
 const mapDispatchToProps = (dispatch) => ({

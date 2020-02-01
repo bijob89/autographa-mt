@@ -8,7 +8,8 @@ import { Checkbox, Paper } from '@material-ui/core';
 import ComponentHeading from '../ComponentHeading';
 import apiUrl from '../GlobalUrl'
 import PopUpMessages from '../PopUpMessages'
-import { displaySnackBar } from '../../store/actions/sourceActions'
+import { displaySnackBar } from '../../store/actions/sourceActions';
+import CircleLoader from '../loaders/CircleLoader';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
@@ -128,7 +129,7 @@ class ListUsers extends Component {
     }
 
     render() {
-        const {  classes, users } = this.props;
+        const {  classes, users, isFetching } = this.props;
         const { columns } = this.state;
         const data = users.map(user => {
             return [
@@ -145,6 +146,7 @@ class ListUsers extends Component {
         return (
             <div className={classes.root}>
                 <PopUpMessages />
+                { isFetching && <CircleLoader />}
                 <MUIDataTable 
                     title={"Users List"} 
                     data={data} 
@@ -157,7 +159,8 @@ class ListUsers extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    users: state.user.users
+    users: state.user.users,
+    isFetching: state.user.isFetching
 })
 
 const mapDispatchToProps = (dispatch) => ({

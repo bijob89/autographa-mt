@@ -1,7 +1,8 @@
-import { SET_USERS } from '../actions/actionConstants';
+import { SET_USERS, SET_IS_FETCHING } from '../actions/actionConstants';
 
 const initialState = {
-    users: []
+    users: [],
+    isFetching: false
 };
 
 const reducer = (state=initialState, action) => {
@@ -11,6 +12,11 @@ const reducer = (state=initialState, action) => {
                 ...state,
                 users: action.users
             };
+            case SET_IS_FETCHING:
+                return {
+                    ...state,
+                    isFetching: action.status
+                }
         default:
             return {
                 ...state

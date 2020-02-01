@@ -14,6 +14,7 @@ import { fetchOrganisations, updateOrganisationVerifiedStatus } from '../../stor
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import { displaySnackBar } from '../../store/actions/sourceActions';
+import CircleLoader from '../loaders/CircleLoader';
 
 import { Switch } from '@material-ui/core';
 import MUIDataTable from "mui-datatables";
@@ -41,7 +42,7 @@ const styles = theme => ({
         },
     },
     fab: {
-        position: 'absolute',
+        position: 'fixed',
         bottom: '16px',
         right: '16px',
     }
@@ -127,7 +128,7 @@ class ListOrganisations extends Component {
     }
 
     render() {
-        const {  classes, organisations } = this.props;
+        const {  classes, organisations, isFetching } = this.props;
         const { columns } = this.state;
         const data = organisations.map(organisation => {
             return [
@@ -146,6 +147,7 @@ class ListOrganisations extends Component {
         return (
             <div className={classes.root}>
                 <PopUpMessages />
+                { isFetching && <CircleLoader />}
                 <MUIDataTable 
                     title={"Organisations List"} 
                     data={data} 
@@ -162,7 +164,8 @@ class ListOrganisations extends Component {
 
 
 const mapStateToProps = state => ({
-    organisations: state.organisation.organisations
+    organisations: state.organisation.organisations,
+    isFetching: state.organisation.isFetching
 })
 
 const mapDispatchToProps = (dispatch) => ({

@@ -1,3 +1,4 @@
 export const SET_PROJECTS = 'SET_PROJECTS';
 export const SET_ORGANISATIONS = 'SET_ORGANISATIONS';
 export const SET_USERS = 'SET_USERS';
+export const SET_IS_FETCHING = 'SET_IS_FETCHING';

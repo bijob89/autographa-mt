@@ -1,7 +1,8 @@
-import { SET_PROJECTS } from '../actions/actionConstants';
+import { SET_PROJECTS, SET_IS_FETCHING } from '../actions/actionConstants';
 
 const initialState = {
-    projects: []
+    projects: [],
+    isFetching: false
 };
 
 const reducer = (state=initialState, action) => {
@@ -11,6 +12,11 @@ const reducer = (state=initialState, action) => {
                 ...state,
                 projects: action.projects
             };
+            case SET_IS_FETCHING:
+                return {
+                    ...state,
+                    isFetching: action.status
+                }
         default:
             return {
                 ...state
