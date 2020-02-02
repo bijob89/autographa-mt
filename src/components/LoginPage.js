@@ -64,6 +64,7 @@ class LoginPage extends Component {
         if ('accessToken' in myJson) {
             this.setState({ redirect: true })
             await localStorage.setItem('accessToken', myJson.accessToken)
+            window.location = '/app/projects';
             this.props.setAccessToken({
                 accessToken: myJson.accessToken
             })

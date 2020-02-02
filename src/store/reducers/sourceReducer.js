@@ -1,20 +1,27 @@
+import { SET_BIBLE_LANGUAGES, SET_ALL_LANGUAGES, SET_IS_FETCHING } from '../actions/actionConstants';
 const initState = {
-    sourceId: null,
-    projectId: null,
-    project: '',
-    book: '',
-    token: null,
-    targetLanguage: null,
-    targetLanguageId: null,
-    reference: null,
-    verseNum: '',
-    snackBarMessage: null,
-    snackBarOpen: false,
-    snackBarVariant: null
+    bibleLanguages: [],
+    allLanguages: [],
+    isFetching: false
 }
 
 const sourceReducer = (state = initState, action) => {
     switch (action.type) {
+        case SET_BIBLE_LANGUAGES:
+            return {
+                ...state,
+                bibleLanguages: action.bibleLanguages
+            }
+        case SET_ALL_LANGUAGES:
+            return {
+                ...state,
+                allLanguages: action.allLanguages
+            }
+        case SET_IS_FETCHING:
+            return {
+                ...state,
+                isFetching: action.status
+            }
         case 'GET_SOURCES':
             return {
                 ...state,

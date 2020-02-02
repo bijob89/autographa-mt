@@ -15,6 +15,8 @@ import UserDashboard from '../Users/UserDashboard';
 import ListProjects from '../Administration/ListProjects';
 import ListOrganisations from '../Administration/ListOrganisations';
 import ListUsers from '../Administration/ListUsers';
+import { connect } from 'react-redux';
+import { validateAccessToken } from '../../store/actions/authActions';
 // import ProjectStatistics from '../Reports/ProjectStatistics'
 
 export const PrivateRoute = ({ component: Component, ...rest }) => (
@@ -70,9 +72,14 @@ const styles = theme => ({
 
 class Wrapper extends Component {
     state = {}
+    componentDidMount() {
+        const { dispatch } = this.props;
+        dispatch(validateAccessToken());
+    }
 
     render() {
         const { classes } = this.props;
+        console.log('Wrapper', this.props);
         return (
             <BrowserRouter>
             <div className={classes.root}>
@@ -108,4 +115,12 @@ class Wrapper extends Component {
 //     classes: PropTypes.object.isRequired,
 // };
 
-export default withStyles(styles)(Wrapper);
+const mapStateToProps = state => ({
+    current_user: state.auth.current_user
+})
+
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Wrapper))

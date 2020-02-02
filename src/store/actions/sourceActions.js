@@ -1,3 +1,70 @@
+import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES } from './actionConstants';
+import apiUrl from '../../components/GlobalUrl.js';
+import swal from 'sweetalert';
+
+export const fetchBibleLanguages = () => async dispatch => {
+    try{
+        
+        // const data = await fetch(apiUrl + 'v1/bibles/languages', {
+        //     method: 'GET'
+        // })
+        
+        // const bibleLanguages = await data.json()
+
+        
+        const lang = await fetch(apiUrl + 'v1/bibles', {
+            method: 'GET'
+        })
+        const biblesDetails = await lang.json()
+
+        
+
+        
+        dispatch(setBibleLanguages(biblesDetails))
+    }
+    catch(e) {
+        swal({
+            title: 'Fetch Bible languages',
+            text: 'Unable to fetch bible language data, check your internet connection or contact admin',
+            icon: 'error'
+        })
+
+    }
+}
+
+export const fetchAllLanguages = () => async dispatch => {
+    try{
+        const data = await fetch(apiUrl + 'v1/languages', {
+            method: 'GET'
+        })
+        const allLanguages = await data.json()
+        dispatch(setAllLanguages(allLanguages))
+    }
+    catch(e){
+        swal({
+            title: 'Fetch all languages',
+            text: 'Unable to fetch all language data, check your internet connection or contact admin',
+            icon: 'error'
+        })
+
+    }
+}
+
+export const setBibleLanguages = bibleLanguages => ({
+    type: SET_BIBLE_LANGUAGES,
+    bibleLanguages
+});
+
+export const setAllLanguages = allLanguages => ({
+    type: SET_ALL_LANGUAGES,
+    allLanguages
+})
+
+export const setIsFetching = status => ({
+    type: SET_IS_FETCHING,
+    status
+})
+
 export const createSource = (source) => {
     return (dispatch, getState) => {
         dispatch({ type: 'GET_SOURCES', source })
