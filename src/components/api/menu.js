@@ -37,10 +37,10 @@ export const menus = [
                 key: 'sources'
             },
             {
-                name: 'Drafts',
-                link: '/tranlsations/drafts',
+                name: 'Translations',
+                link: '/app/translations',
                 roles: ['member', 'admin', 'super-admin'],
-                key: 'drafts'
+                key: 'translations'
             }
         ]
     },

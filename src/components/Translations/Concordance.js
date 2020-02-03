@@ -129,13 +129,13 @@ class Concordance extends Component {
                     <Grid item xs={12}>
                         <ComponentHeading data={{
                             classes: classes,
-                            text: `${book.toUpperCase()} Concordance`,
+                            text: book ? `${book.toUpperCase()} Concordance` : 'Concordance',
                             styleColor: "#2a2a2fbd"
                         }} />
                     </Grid>
                     <Grid item xs={12} className={classes.textDisplay}>
 
-                        {this.displayConcordance(concordance[book.toLowerCase()], token)}
+                        {/* {this.displayConcordance(concordance[book.toLowerCase()], token)} */}
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>

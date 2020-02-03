@@ -8,12 +8,13 @@ import { Component } from 'react';
 import Drawer from './Drawer';
 import { Redirect, Route, Switch, BrowserRouter } from 'react-router-dom';
 
-import HomePage from '../HomePage'
+// import HomePage from '../HomePage'
 import DownloadDraft from '../DownloadDraft';
 import ViewSources from '../ViewSources';
 import UserDashboard from '../Users/UserDashboard';
 import ListProjects from '../Administration/ListProjects';
 import ListOrganisations from '../Administration/ListOrganisations';
+import HomePage from '../Translations/HomePage';
 import ListUsers from '../Administration/ListUsers';
 import { connect } from 'react-redux';
 import { validateAccessToken } from '../../store/actions/authActions';
@@ -102,6 +103,7 @@ class Wrapper extends Component {
                             <PrivateRoute path="/app/projects" component={() => <ListProjects />} />
                             <PrivateRoute path="/app/users" component={() => <ListUsers />} />
                             <PrivateRoute path="/app/organisations" component={() => <ListOrganisations />} />
+                            <PrivateRoute path="/app/translations" component={() => <HomePage />} />
                         </Switch>
                     {/* </BrowserRouter> */}
                 </main>
