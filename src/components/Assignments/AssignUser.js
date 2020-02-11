@@ -24,6 +24,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { displaySnackBar } from '../../store/actions/sourceActions';
 import { connect } from 'react-redux'
 import StatisticsSummary from '../StatisticsSummary';
+import { getUserBooks, getAssignedUsers, fetchUsers, assignUserToProject } from '../../store/actions/userActions';
+import compose from 'recompose/compose';
+import { withRouter } from 'react-router-dom';
 
 const styles = theme => ({
     root: {
@@ -84,64 +87,70 @@ class AssignUser extends Component {
         statistics: null
     }
 
-    async getUsers() {
-        const { userStatus } = this.state
-        const data = await fetch(apiUrl + '/v1/autographamt/users', {
-            method: 'GET',
-            headers: {
-                "Authorization": 'bearer ' + accessToken
-            }
-        })
-        const userData = await data.json()
-        if ("success" in userData) {
-            this.props.displaySnackBar({
-                snackBarMessage: userData.message,
-                snackBarOpen: true,
-                snackBarVariant: (userData.success) ? "success" : "error"
-            })
-        } else {
-            userData.map(item => {
-                if (item.roleId > 1) {
-                    userStatus[item.userId] = {
-                        "admin": true,
-                        "verified": item.verified
-                    }
-                } else {
-                    userStatus[item.userId] = {
-                        "admin": false,
-                        "verified": item.verified
-                    }
-                }
-            })
-            this.setState({ userData: userData, userStatus: userStatus })
-        }
-    }
+    // async getUsers() {
+    //     const { userStatus } = this.state
+    //     const data = await fetch(apiUrl + '/v1/autographamt/users', {
+    //         method: 'GET',
+    //         headers: {
+    //             "Authorization": 'bearer ' + accessToken
+    //         }
+    //     })
+    //     const userData = await data.json()
+    //     if ("success" in userData) {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: userData.message,
+    //             snackBarOpen: true,
+    //             snackBarVariant: (userData.success) ? "success" : "error"
+    //         })
+    //     } else {
+    //         userData.map(item => {
+    //             if (item.roleId > 1) {
+    //                 userStatus[item.userId] = {
+    //                     "admin": true,
+    //                     "verified": item.verified
+    //                 }
+    //             } else {
+    //                 userStatus[item.userId] = {
+    //                     "admin": false,
+    //                     "verified": item.verified
+    //                 }
+    //             }
+    //         })
+    //         this.setState({ userData: userData, userStatus: userStatus })
+    //     }
+    // }
 
-    async getAssignedUsers() {
-        const { projectId } = this.props.project
-        const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments/' + projectId, {
-            method: 'GET',
-            headers: {
-                Authorization: 'bearer ' + accessToken
-            }
-        })
-        const assignedUsers = await data.json()
-        if (!assignedUsers.message) {
-            this.setState({ assignedUsers })
-        }
-    }
+    // async getAssignedUsers() {
+    //     const { projectId } = this.props.project
+    //     const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments/' + projectId, {
+    //         method: 'GET',
+    //         headers: {
+    //             Authorization: 'bearer ' + accessToken
+    //         }
+    //     })
+    //     const assignedUsers = await data.json()
+    //     if (!assignedUsers.message) {
+    //         this.setState({ assignedUsers })
+    //     }
+    // }
 
     componentDidMount() {
-        this.getUsers()
-        this.getAssignedUsers()
+        // this.getUsers()
+        // this.getAssignedUsers()
+        const { dispatch, location } = this.props;
+        const projectId = location.pathname.split('/').pop()
+        console.log('project id', projectId)
+        // dispatch(getUserBooks())
+        dispatch(fetchUsers())
+        dispatch(getAssignedUsers(projectId))
     }
 
     componentWillReceiveProps(nextProps) {
         const { project } = nextProps
         const { statistics } = this.state
-        if (statistics === null) {
-            this.getProjectStatistcs(project)
-        }
+        // if (statistics === null) {
+        //     this.getProjectStatistcs(project)
+        // }
     }
 
 
@@ -149,37 +158,39 @@ class AssignUser extends Component {
         this.setState({ userListing: true })
     }
 
-    async assignUserToProject(apiData) {
-        try {
-            const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
-                method: 'POST',
-                body: JSON.stringify(apiData)
-            })
-            const myJson = await data.json()
-            this.props.displaySnackBar({
-                snackBarMessage: myJson.message,
-                snackBarOpen: true,
-                snackBarVariant: "success"
-            })
-            this.getAssignedUsers()
-        } catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "Server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-        }
-    }
+    // async assignUserToProject(apiData) {
+    //     try {
+    //         const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
+    //             method: 'POST',
+    //             body: JSON.stringify(apiData)
+    //         })
+    //         const myJson = await data.json()
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: myJson.message,
+    //             snackBarOpen: true,
+    //             snackBarVariant: "success"
+    //         })
+    //         this.getAssignedUsers()
+    //     } catch (ex) {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: "Server Error",
+    //             snackBarOpen: true,
+    //             snackBarVariant: "error"
+    //         })
+    //     }
+    // }
 
     selectUser = (userId) => {
-        const { projectId } = this.props.project
+        const { dispatch } = this.props;
+        const projectId = this.props.location.pathname.split('/').pop();
         const apiData = {
             projectId: projectId,
             userId: userId,
             books: [],
             // action:'add'
         }
-        this.assignUserToProject(apiData)
+        // this.assignUserToProject(apiData)
+        dispatch(assignUserToProject(apiData))
     }
 
     closeUserListing = () => {
@@ -191,8 +202,9 @@ class AssignUser extends Component {
     }
 
     getUserNames = () => {
-        const { userData } = this.state
-        return userData.map(user => {
+        // const { userData } = this.state
+        const {users} = this.props
+        return users.map(user => {
             return (
                 <div key={user.userId}>
                     <ListItem className={this.props.classes.listItem} button onClick={() => this.selectUser(user.userId)} >{user.firstName + " " + user.lastName}</ListItem>
@@ -202,30 +214,30 @@ class AssignUser extends Component {
         })
     }
 
-    async deleteUser(apiData) {
-        const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
-            method: 'DELETE',
-            body: JSON.stringify(apiData)
-        })
-        const response = await data.json()
-        if (response.success) {
-            this.props.displaySnackBar({
-                snackBarMessage: response.message,
-                snackBarOpen: true,
-                snackBarVariant: "success"
-            })
-            this.getAssignedUsers()
+    // async deleteUser(apiData) {
+    //     const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
+    //         method: 'DELETE',
+    //         body: JSON.stringify(apiData)
+    //     })
+    //     const response = await data.json()
+    //     if (response.success) {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: response.message,
+    //             snackBarOpen: true,
+    //             snackBarVariant: "success"
+    //         })
+    //         this.getAssignedUsers()
 
 
-        } else {
-            this.props.displaySnackBar({
-                snackBarMessage: response.message,
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
+    //     } else {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: response.message,
+    //             snackBarOpen: true,
+    //             snackBarVariant: "error"
+    //         })
 
-        }
-    }
+    //     }
+    // }
 
     handleDelete = (userId, projectId) => {
         const apiData = {
@@ -237,44 +249,44 @@ class AssignUser extends Component {
     }
 
 
-    async getUserBooks(userId) {
-        try {
-            const { projectId } = this.props.project
-            const data = await fetch(apiUrl + 'v1/sources/projects/books/' + projectId + '/' + userId, {
-                method: 'GET',
-                headers: {
-                    Authorization: 'bearer ' + this.props.accessToken
-                }
-            })
-            const response = await data.json()
-            if("success" in response){
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "error"
+    // async getUserBooks(userId) {
+    //     try {
+    //         const { projectId } = this.props.project
+    //         const data = await fetch(apiUrl + 'v1/sources/projects/books/' + projectId + '/' + userId, {
+    //             method: 'GET',
+    //             headers: {
+    //                 Authorization: 'bearer ' + this.props.accessToken
+    //             }
+    //         })
+    //         const response = await data.json()
+    //         if("success" in response){
+    //             this.props.displaySnackBar({
+    //                 snackBarMessage: response.message,
+    //                 snackBarOpen: true,
+    //                 snackBarVariant: "error"
 
-                })
-            }else{
-                this.setState({
-                    listBooks: true,
-                    availableBooksData: response,
-                })
-                this.props.displaySnackBar({
-                    snackBarMessage: "Books Fetched",
-                    snackBarOpen: true,
-                    snackBarVariant: "success"
-                })
-            }
-        }
-        catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "Server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
+    //             })
+    //         }else{
+    //             this.setState({
+    //                 listBooks: true,
+    //                 availableBooksData: response,
+    //             })
+    //             this.props.displaySnackBar({
+    //                 snackBarMessage: "Books Fetched",
+    //                 snackBarOpen: true,
+    //                 snackBarVariant: "success"
+    //             })
+    //         }
+    //     }
+    //     catch (ex) {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: "Server Error",
+    //             snackBarOpen: true,
+    //             snackBarVariant: "error"
+    //         })
 
-        }
-    }
+    //     }
+    // }
 
     handleSelectBooks = (userId, projectId) => {
         this.setState({ userId, projectId })
@@ -282,7 +294,7 @@ class AssignUser extends Component {
     }
 
     displayAssignedUsers = () => {
-        const { assignedUsers } = this.state
+        const { assignedUsers } = this.props
         return assignedUsers.map(user => {
             const { userName, email, userId } = user.user
             return (
@@ -345,6 +357,7 @@ class AssignUser extends Component {
         const { classes } = this.props
         const { userListing, listBooks } = this.state
         console.log(this.state)
+        console.log('Assign User', this.props);
         return (
 
             <div className={classes.root}>
@@ -426,15 +439,19 @@ class AssignUser extends Component {
 
 const mapStateToProps = state => {
     return {
+        users: state.user.users,
         project: state.sources.project,
-        accessToken: state.auth.accessToken
+        accessToken: state.auth.accessToken,
+        assignedUsers: state.user.assignedUsers
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AssignUser))
+// export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AssignUser))
+export default compose(
+    withStyles(styles),
+    connect(mapStateToProps, mapDispatchToProps)
+ )(withRouter(AssignUser))

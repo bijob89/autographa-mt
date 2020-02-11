@@ -18,14 +18,15 @@ import HomePage from '../Translations/HomePage';
 import ListUsers from '../Administration/ListUsers';
 import { connect } from 'react-redux';
 import { validateAccessToken } from '../../store/actions/authActions';
+import AssignUser from '../Assignments/AssignUser';
 // import ProjectStatistics from '../Reports/ProjectStatistics'
 
-export const PrivateRoute = ({ component: Component, ...rest }) => (
+export const PrivateRoute = ({ component: Component, location, ...rest }) => (
     <Route
-        {...rest}
+        // {...rest}
         render={props => localStorage.getItem('accessToken')
             ? (
-                <Component {...props} />
+                <Component {...props} {...rest} />
             )
             : (<Redirect to={{
                 pathname: "/",
@@ -100,9 +101,10 @@ class Wrapper extends Component {
                             {/* <PrivateRoute path="/dashboard" component={() => <AdminPage />} /> */}
                             <PrivateRoute path="/download" component={() => <DownloadDraft />} />
                             <PrivateRoute path="/app/viewsources" component={() => <ViewSources />} />
-                            <PrivateRoute path="/app/projects" component={() => <ListProjects />} />
+                            <PrivateRoute exact path="/app/projects" component={() => <ListProjects />} />
                             <PrivateRoute path="/app/users" component={() => <ListUsers />} />
                             <PrivateRoute path="/app/organisations" component={() => <ListOrganisations />} />
+                            <PrivateRoute path="/app/projects/:id" location={this.props.location} component={() => <AssignUser />} />
                             <PrivateRoute path="/app/translations" component={() => <HomePage />} />
                         </Switch>
                     {/* </BrowserRouter> */}

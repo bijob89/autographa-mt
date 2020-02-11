@@ -15,6 +15,7 @@ import MUIDataTable from "mui-datatables";
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import CreateProject from './CreateProject';
+import { Redirect } from 'react-router-dom';
 
 const accessToken = localStorage.getItem('accessToken')
 
@@ -68,6 +69,7 @@ const styles = theme => ({
 
 class ListProjects extends Component {
     state = {
+        redirect: null,
         open: false,
         columns: [
             {
@@ -127,7 +129,13 @@ class ListProjects extends Component {
         });
         const options = {
             selectableRows: false,
+            onRowClick: rowData => this.setState({redirect: rowData[0]})
         };
+        console.log('projects', this.props)
+        const { redirect } = this.state;
+        if(redirect) {
+            return <Redirect to={`/app/projects/${redirect}`} />
+        }
         return (
             <div className={classes.root}>
                 <PopUpMessages />
@@ -146,7 +154,7 @@ class ListProjects extends Component {
                 </Fab>
             </div>
         )
-    }
+    } 
 }
 
 const mapStateToProps = (state) => ({
