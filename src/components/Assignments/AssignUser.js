@@ -24,9 +24,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { displaySnackBar } from '../../store/actions/sourceActions';
 import { connect } from 'react-redux'
 import StatisticsSummary from '../StatisticsSummary';
-import { getUserBooks, getAssignedUsers, fetchUsers, assignUserToProject } from '../../store/actions/userActions';
+import { getUserBooks, getAssignedUsers, fetchUsers, assignUserToProject, deleteUser } from '../../store/actions/userActions';
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router-dom';
+import CircleLoader from '../loaders/CircleLoader';
 
 const styles = theme => ({
     root: {
@@ -148,6 +149,10 @@ class AssignUser extends Component {
     componentWillReceiveProps(nextProps) {
         const { project } = nextProps
         const { statistics } = this.state
+        if(nextProps.userBooks !== this.props.userBooks){
+            // this.setState({})
+            this.setState({availableBooksData: this.props.userBooks})
+        }
         // if (statistics === null) {
         //     this.getProjectStatistcs(project)
         // }
@@ -240,12 +245,14 @@ class AssignUser extends Component {
     // }
 
     handleDelete = (userId, projectId) => {
+        const {dispatch } =  this.props;
         const apiData = {
             userId: userId,
             projectId: projectId
         }
-        this.deleteUser(apiData)
-        this.getAssignedUsers()
+        // this.deleteUser(apiData)
+        dispatch(deleteUser(apiData))
+        // this.getAssignedUsers()
     }
 
 
@@ -289,8 +296,11 @@ class AssignUser extends Component {
     // }
 
     handleSelectBooks = (userId, projectId) => {
-        this.setState({ userId, projectId })
-        this.getUserBooks(userId)
+        this.setState({ userId, projectId, listBooks: true });
+        const { dispatch } = this.props;
+        // console.log()
+        // this.getUserBooks(userId)
+        dispatch(getUserBooks(userId, projectId));
     }
 
     displayAssignedUsers = () => {
@@ -316,7 +326,11 @@ class AssignUser extends Component {
 
     displayBooks = () => {
         const { availableBooksData } = this.state
+        const { userBooks } = this.props;
+        // this.setState({availableBooksData: userBooks})
+        
         const allBooks = Object.keys(availableBooksData)
+        // const allBooks = Object.keys(userBooks)
         return allBooks.map(book => {
             return (
                 <Grid item xs={2} className={this.props.classes.checkBox} key={book}>
@@ -338,7 +352,9 @@ class AssignUser extends Component {
 
     assignBooksToUser = () => {
         const { userId, availableBooksData } = this.state
-        const { projectId } = this.props.project
+        // const { projectId } = this.props.project
+        const { dispatch, location } = this.props;
+        const projectId = location.pathname.split('/').pop()
 
         const checkedBooks = Object.keys(availableBooksData).filter(book => availableBooksData[book]["assigned"] === true)
 
@@ -348,13 +364,14 @@ class AssignUser extends Component {
             books: checkedBooks,
             // action:'add'
         }
-        this.assignUserToProject(apiData)
-        this.setState({ userId: '', projectId: '', listBooks: false })
+        // this.assignUserToProject(apiData)
+        dispatch(assignUserToProject(apiData));
+        // this.setState({ userId: '', projectId: '', listBooks: false })
     }
 
 
     render() {
-        const { classes } = this.props
+        const { classes, isFetching } = this.props
         const { userListing, listBooks } = this.state
         console.log(this.state)
         console.log('Assign User', this.props);
@@ -378,6 +395,10 @@ class AssignUser extends Component {
                     }}>
                     <AddIcon />
                     Add User</Button>
+                    {
+                        isFetching &&
+                        <CircleLoader />
+                    }
                 <Paper>
                     {/* <ComponentHeading data={{ classes: classes, text: "Users List", styleColor: "#2a2a2fbd" }} /> */}
                     <ComponentHeading data={{ classes: classes, text: "Users List", styleColor: "#fff", color:'black' }} />
@@ -396,7 +417,7 @@ class AssignUser extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
-                <PopUpMessages />
+                {/* <PopUpMessages /> */}
                 <Dialog
                     open={userListing}
                     onClose={this.closeUserListing}
@@ -442,7 +463,9 @@ const mapStateToProps = state => {
         users: state.user.users,
         project: state.sources.project,
         accessToken: state.auth.accessToken,
-        assignedUsers: state.user.assignedUsers
+        assignedUsers: state.user.assignedUsers,
+        userBooks: state.user.userBooks,
+        isFetching: state.user.isFetching
     }
 }
 

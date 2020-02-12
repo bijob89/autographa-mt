@@ -4,7 +4,7 @@ const initialState = {
     users: [],
     isFetching: false,
     assignedUsers: [],
-    userBooks: []
+    userBooks: {}
 };
 
 const reducer = (state=initialState, action) => {

@@ -75,6 +75,7 @@ export const getAssignedUsers = (projectId) => async dispatch => {
         if (!assignedUsers.message) {
             // this.setState({ assignedUsers })
             dispatch(setAssignedUsers(assignedUsers))
+            dispatch(setIsFetching(false));
         } else {
             dispatch(setIsFetching(false))
             swal({
@@ -122,7 +123,7 @@ export const assignUserToProject = (apiData) => async dispatch => {
 }
 
 export const deleteUser = (apiData) => async dispatch => {
-    dispatch(setIsFetching(false))
+    dispatch(setIsFetching(true))
     try {
 
         const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
@@ -137,6 +138,7 @@ export const deleteUser = (apiData) => async dispatch => {
                 text: 'User successfully removed from project',
                 icon: 'success'
             })
+            dispatch(getAssignedUsers(apiData.projectId));
 
         } else {
             swal({
@@ -159,6 +161,7 @@ export const deleteUser = (apiData) => async dispatch => {
 
 export const getUserBooks = (userId, projectId) => async dispatch =>{
     try {
+        dispatch(setIsFetching(true))
         const data = await fetch(apiUrl + 'v1/sources/projects/books/' + projectId + '/' + userId, {
             method: 'GET',
             headers: {
@@ -166,6 +169,8 @@ export const getUserBooks = (userId, projectId) => async dispatch =>{
             }
         })
         const response = await data.json()
+        dispatch(setIsFetching(false))
+        console.log('books', response)
         if("success" in response){
             swal({
                 title: 'Fetch books',
@@ -173,14 +178,16 @@ export const getUserBooks = (userId, projectId) => async dispatch =>{
                 icon: 'error'
             })
         }else{
-            swal({
-                title: 'Fetch books',
-                text: 'Books fetched successfully',
-                icon: 'success'
-            });
+            dispatch(setUserBooks(response))
+            // swal({
+            //     title: 'Fetch books',
+            //     text: 'Books fetched successfully',
+            //     icon: 'success'
+            // });
         }
     }
     catch (ex) {
+        dispatch(setIsFetching(false))
         swal({
             title: 'Fetch books',
             text: 'Unable to fetch books of users, check your internet connection or contact admin',
