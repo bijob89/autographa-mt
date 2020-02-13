@@ -19,6 +19,7 @@ import ListUsers from '../Administration/ListUsers';
 import { connect } from 'react-redux';
 import { validateAccessToken } from '../../store/actions/authActions';
 import AssignUser from '../Assignments/AssignUser';
+import MyProjects from '../Translations/MyProjects';
 // import ProjectStatistics from '../Reports/ProjectStatistics'
 
 export const PrivateRoute = ({ component: Component, location, ...rest }) => (
@@ -105,7 +106,8 @@ class Wrapper extends Component {
                             <PrivateRoute path="/app/users" component={() => <ListUsers />} />
                             <PrivateRoute path="/app/organisations" component={() => <ListOrganisations />} />
                             <PrivateRoute path="/app/projects/:id" location={this.props.location} component={() => <AssignUser />} />
-                            <PrivateRoute path="/app/translations" component={() => <HomePage />} />
+                            {/* <PrivateRoute path="/app/translations" component={() => <HomePage />} /> */}
+                            <PrivateRoute path="/app/translations" component={() => <MyProjects />} />
                         </Switch>
                     {/* </BrowserRouter> */}
                 </main>

@@ -7,19 +7,17 @@ import apiUrl from '../GlobalUrl';
 import { Card } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { displaySnackBar, selectProject } from '../../store/actions/sourceActions'
-import { fetchProjects } from '../../store/actions/projectActions';
+import { fetchUserProjects } from '../../store/actions/projectActions';
 import CircleLoader from '../loaders/CircleLoader';
 import { connect } from 'react-redux'
 import PopUpMessages from '../PopUpMessages';
 import MUIDataTable from "mui-datatables";
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
-import CreateProject from './CreateProject';
+// import CreateProject from './CreateProject';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router-dom';
-
-const accessToken = localStorage.getItem('accessToken')
 
 const getMuiTheme = () => createMuiTheme({
     overrides: {
@@ -69,7 +67,8 @@ const styles = theme => ({
     }
 });
 
-class ListProjects extends Component {
+class MyProjects extends Component {
+    
     state = {
         redirect: null,
         open: false,
@@ -108,16 +107,11 @@ class ListProjects extends Component {
         ]
     }
 
-    componentDidMount(){
+    componentDidMount() {
         const { dispatch } = this.props;
-        dispatch(fetchProjects());
+        dispatch(fetchUserProjects());
     }
-
-    handleClose = () => {
-        this.setState({open: false})
-    }
-
-    render() {
+    render () {
         const { classes, projects, isFetching } = this.props;
         const { columns, open } = this.state;
         const data = projects.map(project => {
@@ -133,44 +127,38 @@ class ListProjects extends Component {
             selectableRows: false,
             onRowClick: rowData => this.setState({redirect: rowData[0]})
         };
-        console.log('projects', this.props)
+        console.log('my projects', this.props)
         const { redirect } = this.state;
         if(redirect) {
             return <Redirect to={`/app/projects/${redirect}`} />
         }
         return (
             <div className={classes.root}>
-                {/* <PopUpMessages /> */}
                 { isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable 
-                    title={"Projects List"} 
+                    title={"My Projects"} 
                     data={data} 
                     columns={columns} 
                     options={options} 
                 />
                 </MuiThemeProvider>
-                <CreateProject open={open} close={this.handleClose} />
-                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
-                    <AddIcon />
-                </Fab>
             </div>
         )
-    } 
+    }
 }
 
 const mapStateToProps = (state) => ({
     projects: state.project.projects,
-    isFetching: state.project.isFetching
+    isFetching: state.project.isFetching,
+    userProjects: state.project.userProjects
 })
 
 const mapDispatchToProps = (dispatch) => ({
     dispatch
 })
 
-
-// export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ListProjects));
 export default compose(
     withStyles(styles),
     connect(mapStateToProps, mapDispatchToProps)
- )(withRouter(ListProjects))
+ )(withRouter(MyProjects))
