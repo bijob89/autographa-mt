@@ -3,7 +3,10 @@ import { FormControl, Grid, MenuItem, Select, InputLabel } from '@material-ui/co
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { selectBook } from '../../store/actions/sourceActions';
-
+import { setSelectedBook, fetchUserProjects } from '../../store/actions/projectActions';
+import compose from 'recompose/compose';
+import { withRouter } from 'react-router-dom';
+// import CircleLoader from '../loaders/CircleLoader';
 
 const styles = theme => ({
     selectionGrid: {
@@ -20,10 +23,16 @@ const styles = theme => ({
 
 class MenuBar extends Component {
 
+    componentDidMount() {
+        // const { dispatch } = this.props;
+        // dispatch(fetchUserProjects());
+    }
+
     displayBooks() {
-        const { project } = this.props
-        if (project) {
-            return project.books.map(item => {
+        const { userProjects, location } = this.props
+        if (userProjects.length > 0 ) {
+            const data = userProjects.filter(project => project.projectId === parseInt(location.pathname.split('/').pop()));
+            return data[0].books.map(item => {
                 return (
                     <MenuItem key={item} value={item}>{item}</MenuItem>
                 )
@@ -36,7 +45,8 @@ class MenuBar extends Component {
     }
 
     render() {
-        const { classes, book } = this.props
+        const { classes, selectedBook, dispatch } = this.props
+        console.log('Menu Bar', this.props)
         return (
             <Grid container item xs={12} className={classes.selectionGrid}>
                 <Grid container item xs={8}>
@@ -47,8 +57,8 @@ class MenuBar extends Component {
                                 variant="filled"
                                 margin="dense"
                                 className={classes.selectMenu}
-                                value={book}
-                                onChange={(e) => this.props.selectBook({ book: e.target.value })}
+                                value={selectedBook}
+                                onChange={(e) => dispatch(setSelectedBook(e.target.value))}
                                 inputProps={{
                                     id: 'select-books',
                                 }}
@@ -67,15 +77,17 @@ class MenuBar extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        project: state.sources.project,
-        book: state.sources.book
+        userProjects: state.project.userProjects,
+        selectedBook: state.project.selectedBook
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        selectBook: (project) => dispatch(selectBook(project))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MenuBar))
+// export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MenuBar))
+export default compose(
+    withStyles(styles),
+    connect(mapStateToProps, mapDispatchToProps)
+ )(withRouter(MenuBar))

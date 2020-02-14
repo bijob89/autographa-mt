@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
     dialog: dialogReducer,
     project: projectReducer,
     organisation: organisationReducer,
-    user: userReducer
+    user: userReducer,
 });
 
 export default rootReducer;

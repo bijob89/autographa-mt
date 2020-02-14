@@ -10,6 +10,11 @@ import { Switch } from '@material-ui/core';
 import { Typography } from '@material-ui/core';
 // import StatisticsSummary from '../StatisticsSummary';
 import { withStyles } from '@material-ui/styles';
+import { connect } from 'react-redux';
+import { setSelectedProject, fetchUserProjects } from '../../store/actions/projectActions';
+import CircleLoader from '../loaders/CircleLoader';
+import compose from 'recompose/compose';
+import { withRouter } from 'react-router-dom';
 // import Header from '../Header';
 
 const styles = theme => ({
@@ -27,25 +32,40 @@ class HomePage extends Component {
         targetLanguageId: 20,
         translationWords: '',
         tNswitchChecked: false,
-        tWswitchChecked:false,
+        tWswitchChecked: false,
         tokenPane: 3,
         translationPane: 4,
         concordancePane: 5,
-        displayConcordancePane:'block',
+        displayConcordancePane: 'block',
         translationWordsPane: 4,
         displayTranslationWords: 'none',
         translationNotesPane: 3,
         displayTranslationNotes: 'none',
         translationNotes: '',
         displayTranslationWordSwitch: 'none',
-        tokenTranslation:'',
-        senses:[]
+        tokenTranslation: '',
+        senses: []
     }
 
     updateState = (value) => {
         this.setState(value)
     }
-    
+
+    componentDidMount() {
+        const { dispatch } = this.props;
+        dispatch(fetchUserProjects());
+    }
+
+    componentDidUpdate(prevProps) {
+        if(prevProps.userProjects !== this.props.userProjects){
+            const projectId = this.props.location.pathname.split('/').pop();
+            const selectedProject = this.props.userProjects.filter(item => item.projectId === parseInt(projectId))
+            if(selectedProject.length > 0){
+                this.props.dispatch(setSelectedProject(selectedProject[0]));
+            }
+        }
+    }
+
     handleTNSwitchChange = e => {
         const { tNswitchChecked } = this.state
         if (tNswitchChecked) {
@@ -56,9 +76,9 @@ class HomePage extends Component {
                 concordancePane: 5,
                 displayTranslationNotes: 'none',
                 displayTranslationWordSwitch: 'none',
-                displayTranslationWords:'none',
-                displayConcordancePane:'block',
-                tWswitchChecked:false
+                displayTranslationWords: 'none',
+                displayConcordancePane: 'block',
+                tWswitchChecked: false
 
             })
         } else {
@@ -74,28 +94,28 @@ class HomePage extends Component {
     }
 
     handleTWSwitchChange = e => {
-        const { 
+        const {
             tWswitchChecked,
         } = this.state
-        if(!tWswitchChecked){
+        if (!tWswitchChecked) {
             this.setState({
-                tWswitchChecked:!tWswitchChecked,
-                displayConcordancePane:'none',
-                displayTranslationWords:'block',
+                tWswitchChecked: !tWswitchChecked,
+                displayConcordancePane: 'none',
+                displayTranslationWords: 'block',
                 // displayTranslationWordSwitch:'block'
             })
-        }else{
+        } else {
             this.setState({
-                tWswitchChecked:!tWswitchChecked,
-                displayConcordancePane:'block',
-                displayTranslationWords:'none',
+                tWswitchChecked: !tWswitchChecked,
+                displayConcordancePane: 'block',
+                displayTranslationWords: 'none',
                 // displayTranslationWordSwitch:'none'
             })
         }
     }
 
     render() {
-        const { classes } = this.props
+        const { classes, isFetching } = this.props
         const {
             // book,
             // token,
@@ -114,58 +134,90 @@ class HomePage extends Component {
             displayTranslationWordSwitch
         } = this.state
         return (
-            <Grid container item xs={12} className={classes.root}>
-                <Grid container item xs={12}>
-                    <Grid container alignItems="flex-start" justify="center" item xs={7}>
-                    <MenuBar
-                    updateState={this.updateState}
-                 />
-                    </Grid>
-                    <Grid container alignItems="center" justify="center" item xs={2}
-                    >
-                        <Typography variant="subtitle2" color="textSecondary"  style={{display: displayTranslationWordSwitch}}>
-                            Toggle Translation Words
-                        </Typography>
-                        <div style={{display: displayTranslationWordSwitch}}>
-                            <Switch
-                                checked={this.state.tWswitchChecked}
-                                onChange={this.handleTWSwitchChange}
-                            />
-                        </div>
-                    </Grid>
-                    <Grid container alignItems="center" justify="flex-end" item xs={3}>
-                        <Typography variant="subtitle2" color="textSecondary" >
-                            Toggle Translation Helps
-                        </Typography>
-                        <Switch
-                            checked={this.state.tNswitchChecked}
-                            onChange={this.handleTNSwitchChange}
+            <Grid container spacing={2} className={classes.root}>
+                {/* <Grid container> */}
+                { isFetching && <CircleLoader />}
+                    <Grid item xs={6}>
+                        <MenuBar
+                            updateState={this.updateState}
                         />
                     </Grid>
-                </Grid>
-                <Grid container item xs={12}>
+                    {/* <Grid container alignItems="center" justify="center" item xs={2}> */}
+                    <Grid item xs={3}>
+                        <Grid container>
+                            <Grid itm xs={8}>
+                                
+                                <Typography variant="subtitle2" color="textSecondary" style={{ display: displayTranslationWordSwitch }}>
+                                Translation Words
+                                </Typography>
+                            </Grid>
+                            <Grid itm xs={4}>
+                                <div style={{ display: displayTranslationWordSwitch }}>
+                                    <Switch
+                                        checked={this.state.tWswitchChecked}
+                                        onChange={this.handleTWSwitchChange}
+                                    />
+                                </div>
+                            </Grid>
+                        </Grid>
+                        
+                        
+                    </Grid>
+                    {/* <Grid container alignItems="center" justify="flex-end" item xs={3}> */}
+                    <Grid item xs={3}>
+                        <Grid container>
+                            <Grid itm xs={8}>
+                                
+                                <Typography variant="subtitle2" color="textSecondary" >
+                                    Translation Helps
+                                </Typography>
+                            </Grid>
+                            <Grid itm xs={4}>
+                                <Switch
+                                checked={this.state.tNswitchChecked}
+                                onChange={this.handleTNSwitchChange}
+                                />
+                            </Grid>
+                        </Grid>
+                        
+                    </Grid>
+                {/* </Grid> */}
+                {/* <Grid container item xs={12}> */}
                     <Grid item xs={tokenPane}>
-                        <TokenList  />
+                        <TokenList />
                     </Grid>
                     <Grid item xs={translationPane}>
-                        <UpdateTokens  />
+                        <UpdateTokens />
                     </Grid>
                     <Grid item xs={concordancePane}
-                    style={{display: displayConcordancePane}}
+                        style={{ display: displayConcordancePane }}
                     >
-                        <Concordance  />
+                        <Concordance />
                     </Grid>
                     <Grid item xs={translationWordsPane} style={{ display: this.state.displayTranslationWords }}>
                         <TranslationsWords />
                     </Grid>
                     <Grid item xs={translationNotesPane} style={{ display: this.state.displayTranslationNotes }}>
-                        <TranslationsNotes  />
+                        <TranslationsNotes />
                     </Grid>
-                </Grid>
+                {/* </Grid> */}
             </Grid>
         )
     }
 }
 
+const mapStateToProps = (state) => ({
+    projects: state.project.projects,
+    isFetching: state.project.isFetching,
+    userProjects: state.project.userProjects
+})
 
-export default withStyles(styles)(HomePage)
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
+
+// export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HomePage))
+export default compose(
+    withStyles(styles),
+    connect(mapStateToProps, mapDispatchToProps)
+ )(withRouter(HomePage))

@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import apiUrl from '../GlobalUrl';
 import { saveReference } from '../../store/actions/sourceActions';
 import { connect } from 'react-redux';
+import { fetchConcordances } from '../../store/actions/projectActions';
 
 const styles = theme => ({
     root: {
@@ -63,9 +64,10 @@ class Concordance extends Component {
     }
 
     componentWillReceiveProps(nextProps){
-        const { token, project, book } = nextProps
-        if(token){
-            this.getVerseText(token, project.sourceId, book )
+        const { selectedToken, selectedProject, selectedBook, dispatch } = nextProps
+        if(selectedToken){
+            dispatch(fetchConcordances(selectedToken, selectedProject.sourceId, selectedBook));
+            // this.getVerseText(token, project.sourceId, book )
         }
     }
 
@@ -120,8 +122,8 @@ class Concordance extends Component {
     }
     render() {
         const { classes } = this.props
-        const { book, token } = this.props
-        const { concordance } = this.state
+        const { selectedBook, selectedToken, concordance } = this.props
+        // const { concordance } = this.state
         return (
             <Grid container item xs={12} className={classes.containerGrid}>
                 {/* <Paper className={classes.tokenList}> */}
@@ -129,13 +131,13 @@ class Concordance extends Component {
                     <Grid item xs={12}>
                         <ComponentHeading data={{
                             classes: classes,
-                            text: book ? `${book.toUpperCase()} Concordance` : 'Concordance',
+                            text: selectedBook ? `${selectedBook.toUpperCase()} Concordance` : 'Concordance',
                             styleColor: "#2a2a2fbd"
                         }} />
                     </Grid>
                     <Grid item xs={12} className={classes.textDisplay}>
 
-                        {/* {this.displayConcordance(concordance[book.toLowerCase()], token)} */}
+                        {this.displayConcordance(concordance[selectedBook.toLowerCase()], selectedToken)}
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
@@ -147,7 +149,7 @@ class Concordance extends Component {
                         }} />
                     </Grid>
                     <Grid item xs={12} className={classes.textDisplay}>
-                        {this.displayConcordance(concordance.all, token)}
+                        {this.displayConcordance(concordance.all, selectedToken)}
                     </Grid>
                 </Grid>
                 {/* </Paper> */}
@@ -159,16 +161,15 @@ class Concordance extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        project: state.sources.project,
-        token: state.sources.token,
-        book: state.sources.book
+        selectedProject: state.project.selectedProject,
+        selectedToken: state.project.selectedToken,
+        selectedBook: state.project.selectedBook,
+        concordance: state.project.concordance
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        saveReference: (reference) => dispatch(saveReference(reference))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+});
 
 export default connect(mapStateToProps,mapDispatchToProps )(withStyles(styles)(Concordance))

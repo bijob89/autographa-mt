@@ -1,4 +1,13 @@
-import { SET_PROJECTS, SET_IS_FETCHING, SET_USER_PROJECTS } from './actionConstants';
+import { 
+    SET_PROJECTS, 
+    SET_IS_FETCHING, 
+    SET_USER_PROJECTS,
+    SET_SELECTED_BOOK, 
+    SET_TOKEN_LIST,
+    SET_SELECTED_PROJECT,
+    SET_SELECTED_TOKEN,
+    SET_CONCORDANCE
+} from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
 import { setDisplayName } from 'recompose';
@@ -102,6 +111,40 @@ export const fetchUserProjects = () => async dispatch => {
     }
 }
 
+export const fetchTokenList = (currentBook, sourceId) => async dispatch => {
+    dispatch(setIsFetching(true))
+    var bookData = await fetch(apiUrl + 'v1/tokenlist/' + sourceId + '/' + currentBook, {
+        method: 'GET'
+    })
+    const tokenList = await bookData.json();
+    dispatch(setTokenList(tokenList))
+    dispatch(setIsFetching(false))
+    // this.setState({ tokenList: tokenList })
+}
+
+export const fetchConcordances = (token, sourceId, book ) => async dispatch => {
+    if(book){
+        dispatch(setIsFetching(true))
+        try{
+            const data = await fetch(apiUrl + '/v1/concordances/' + sourceId + '/' + book + '/' + token, {
+                method: 'GET'
+            })
+            const concordance = await data.json()
+            dispatch(setConcordance(concordance))
+            dispatch(setIsFetching(false))
+        }
+        catch(e) {
+            dispatch(setIsFetching(false))
+        }
+        // await this.setState({ concordance: concordance })
+    }
+}
+
+export const setSelectedProject = project => ({
+    type: SET_SELECTED_PROJECT,
+    project
+})
+
 export const setUserProjects = projects => ({
     type: SET_USER_PROJECTS,
     projects
@@ -116,3 +159,23 @@ export const setIsFetching = (status) => ({
     type: SET_IS_FETCHING,
     status
 });
+
+export const setTokenList = tokens => ({
+    type: SET_TOKEN_LIST,
+    tokens
+})
+
+export const setSelectedBook = book => ({
+    type: SET_SELECTED_BOOK,
+    book
+});
+
+export const setSelectedToken = token => ({
+    type: SET_SELECTED_TOKEN,
+    token
+});
+
+export const setConcordance = concordance => ({
+    type: SET_CONCORDANCE,
+    concordance
+})

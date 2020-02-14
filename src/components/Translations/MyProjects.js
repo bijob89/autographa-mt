@@ -103,6 +103,12 @@ class MyProjects extends Component {
                 options: {
                     filter: true
                 }
+            },
+            {
+                name: 'Books Assigned',
+                options: {
+                    filter: true
+                }
             }
         ]
     }
@@ -112,15 +118,16 @@ class MyProjects extends Component {
         dispatch(fetchUserProjects());
     }
     render () {
-        const { classes, projects, isFetching } = this.props;
+        const { classes, userProjects, isFetching } = this.props;
         const { columns, open } = this.state;
-        const data = projects.map(project => {
+        const data = userProjects.map(project => {
             return [
                 project.projectId, 
                 project.projectName.split('|')[0], 
                 project.projectName.split('|')[1], 
                 project.organisationName, 
-                project.version.name
+                project.version.name,
+                project.books.length
             ]
         });
         const options = {
@@ -130,7 +137,7 @@ class MyProjects extends Component {
         console.log('my projects', this.props)
         const { redirect } = this.state;
         if(redirect) {
-            return <Redirect to={`/app/projects/${redirect}`} />
+            return <Redirect to={`/app/translations/${redirect}`} />
         }
         return (
             <div className={classes.root}>

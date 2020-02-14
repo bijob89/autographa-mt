@@ -4,7 +4,8 @@ import ComponentHeading from '../ComponentHeading';
 import apiUrl from '../GlobalUrl'
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { selectToken } from '../../store/actions/sourceActions';
+import { selectToken, selectedBooks } from '../../store/actions/sourceActions';
+import { fetchTokenList, setSelectedToken } from '../../store/actions/projectActions';
 
 const styles = theme => ({
     root: {
@@ -42,17 +43,24 @@ class TokenList extends Component {
         this.setState({ tokenList: tokenList })
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { book, project } = nextProps
-        if(book){
-            this.getTokenList(book, project.sourceId)
-        }else{
-            this.setState({tokenList: []})
+    componentDidUpdate(prevProps) {
+        if(prevProps.selectedBook !== this.props.selectedBook) {
+            // this.props.dispatch(fetchTokenList(this.props.book, this.props.selectedProject.sourceId))
+            this.props.dispatch(fetchTokenList(this.props.selectedBook, this.props.selectedProject.sourceId))
         }
     }
 
+    // componentWillReceiveProps(nextProps) {
+    //     const { book, project } = nextProps
+    //     if(book){
+    //         this.getTokenList(book, project.sourceId)
+    //     }else{
+    //         this.setState({tokenList: []})
+    //     }
+    // }
+
     getTokens() {
-        const { tokenList } = this.state
+        const { tokenList, dispatch } = this.props
         if (tokenList) {
             return tokenList.map((item, index) => {
                 return (
@@ -61,7 +69,7 @@ class TokenList extends Component {
                         <ListItem button
                             name={item}
                             value={item}
-                            onClick={() => this.props.selectToken({token: item})}>{item}
+                            onClick={() => dispatch(setSelectedToken(item))}>{item}
                         </ListItem>
                         <Divider />
                     </div>
@@ -91,18 +99,18 @@ class TokenList extends Component {
 }
 
 
-const mapStateToProps = (state) => {
-    return {
-        project: state.sources.project,
-        book: state.sources.book
-    }
-}
+const mapStateToProps = (state) => ({
+    projects: state.project.projects,
+    isFetching: state.project.isFetching,
+    userProjects: state.project.userProjects,
+    selectedBook: state.project.selectedBook,
+    tokenList: state.project.tokenList,
+    selectedProject: state.project.selectedProject
+})
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        selectToken: (project) => dispatch(selectToken(project))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TokenList))
