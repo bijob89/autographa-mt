@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core';
-import { Button} from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -51,14 +51,14 @@ class BooksDownloadable extends Component {
     // }
 
     // async getTranslatedText(projectId, bookList) {
-        // const { selectedProject } =  this.props
-        // const { targetBooksChecked, targetBooks } = this.state
-        // var bookList = []
-        // targetBooks.map(book => {
-        //     if (targetBooksChecked[book]['checked']) {
-        //         bookList.push(book)
-        //     }
-        // })
+    // const { selectedProject } =  this.props
+    // const { targetBooksChecked, targetBooks } = this.state
+    // var bookList = []
+    // targetBooks.map(book => {
+    //     if (targetBooksChecked[book]['checked']) {
+    //         bookList.push(book)
+    //     }
+    // })
     //     const apiData = {
     //         projectId,
     //         bookList
@@ -95,7 +95,7 @@ class BooksDownloadable extends Component {
         var { targetBooks } = this.state
         // const temp = targetBooksChecked.book
         const isChecked = targetBooks.includes(book);
-        if(isChecked) {
+        if (isChecked) {
             targetBooks = targetBooks.filter(item => item !== book)
         } else {
             targetBooks.push(book)
@@ -127,32 +127,41 @@ class BooksDownloadable extends Component {
     handleDownload = () => {
         const { project, dispatch } = this.props;
         const { targetBooks } = this.state;
-        if(project.projectId) {
+        if (project.projectId) {
             dispatch(getTranslatedText(project.projectId, targetBooks, project.projectName))
         }
-
     }
+
+    handleClose = () => {
+        const { updateState } = this.props;
+        this.setState({
+            targetBooks: [],
+            targetBooksChecked: {}
+        })
+        updateState({booksPane: false})
+    }
+
     render() {
         const { updateState, booksPane, classes, project } = this.props
         return (
             <Dialog
-                    open={booksPane}
-                    onClose={() => updateState({booksPane: false})}
-                    // value={this.state.value}
-                >
-                    <PopUpMessages />
-                <ComponentHeading data={{classes:classes, text:"Select Books to Download", styleColor:'#2a2a2fbd'}} />
+                open={booksPane}
+                onClose={this.handleClose}
+            // value={this.state.value}
+            >
+                <PopUpMessages />
+                <ComponentHeading data={{ classes: classes, text: "Select Books to Download", styleColor: '#2a2a2fbd' }} />
                 {/* <DialogTitle id="form-dialog-title">Select Books to Download</DialogTitle> */}
-                    <DialogContent>
-                        {this.getBooksCheckbox()}
+                <DialogContent>
+                    {this.getBooksCheckbox()}
 
-                    </DialogContent>
-                    <DialogActions>
-                        {/* <Button onClick={this.handleClose} variant="raised" color="primary">Close</Button> */}
-                        <Button onClick={() => updateState({booksPane: false})} size="small" variant="contained" color="secondary" >Close</Button>
-                        <Button onClick={this.handleDownload} variant="contained" color="primary" >Download</Button>
-                    </DialogActions>
-                </Dialog>
+                </DialogContent>
+                <DialogActions>
+                    {/* <Button onClick={this.handleClose} variant="raised" color="primary">Close</Button> */}
+                    <Button onClick={this.handleClose} size="small" variant="contained" color="secondary" >Close</Button>
+                    <Button onClick={this.handleDownload} variant="contained" color="primary" >Download</Button>
+                </DialogActions>
+            </Dialog>
         )
     }
 }

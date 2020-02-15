@@ -8,6 +8,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Typography
 } from '@material-ui/core';
 import apiUrl from '../GlobalUrl';
 import ComponentHeading from '../ComponentHeading';
@@ -15,6 +16,8 @@ import PopUpMessages from '../PopUpMessages';
 import { withStyles } from '@material-ui/styles';
 import { connect } from 'react-redux'
 import { displaySnackBar } from '../../store/actions/sourceActions';
+import Container from '@material-ui/core/Container';
+import { createOrganisation } from '../../store/actions/organisationActions';
 
 
 var accessToken = localStorage.getItem('accessToken')
@@ -22,7 +25,10 @@ var accessToken = localStorage.getItem('accessToken')
 const styles = theme => ({
     root:{
         display:'flex',
-    }
+    },
+    pageContainer: {
+        marginTop: '5%'
+    },
 });
 
 class CreateOrganisations extends Component {
@@ -31,45 +37,9 @@ class CreateOrganisations extends Component {
         organisationAddress: '',
         organisationEmail: '',
         organisationPhone: '',
-        message: '',
-        redirect: false,
-        verificationDialogOpen: false,
-        snackBarOpen: false,
-        popupdata: {},
     }
 
-    async createOrganisation(){
-        const {organisationName, organisationAddress, organisationEmail, organisationPhone} = this.state
-        const apiData = {
-            organisationName: organisationName,
-            organisationAddress: organisationAddress,
-            organisationEmail: organisationEmail,
-            organisationPhone: organisationPhone,
-        }
-        const data = await fetch(apiUrl + '/v1/autographamt/organisations', {
-            method:'POST',
-            body: JSON.stringify(apiData),
-            headers: {
-                Authorization: 'bearer ' + accessToken
-            }
-        })
-        const myJson = await data.json()
-        if(myJson.success){
-            this.props.displaySnackBar({
-                snackBarMessage: myJson.message,
-                snackBarOpen: true,
-                snackBarVariant: "success"
-            })
-            // this.setState({ snackBarOpen: true, popupdata: { variant: "success", message: myJson.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-        }else{
-            this.props.displaySnackBar({
-                snackBarMessage: myJson.message,
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-            // this.setState({ snackBarOpen: true, popupdata: { variant: "error", message: myJson.message, snackBarOpen: true, closeSnackBar: this.closeSnackBar } })
-        }
-    }
+    
 
     closeSnackBar = (item) => {
         this.setState(item)
@@ -77,20 +47,25 @@ class CreateOrganisations extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.createOrganisation()
+        const {organisationName, organisationAddress, organisationEmail, organisationPhone} = this.state
+        const apiData = {
+            organisationName: organisationName,
+            organisationAddress: organisationAddress,
+            organisationEmail: organisationEmail,
+            organisationPhone: organisationPhone,
+        }
+        this.props.dispatch(createOrganisation(apiData, this.clearState));
     }
 
-    handleOk = () => {
-        this.setState({ redirect: true })
-    }
+    // handleOk = () => {
+    //     this.setState({ redirect: true })
+    // }
 
     handleClose = () => {
         this.setState({ verificationDialogOpen: false })
     }
 
-    handleClose = () => {
-        const { updateState } = this.props
-        updateState({ createOrganisationsPane: false})
+    clearState = () => {
         this.setState({
             organisationName: '',
             organisationAddress: '',
@@ -99,36 +74,28 @@ class CreateOrganisations extends Component {
          })
     }
 
-    handleSend = () => {
-        this.createOrganisation()
-    }
+    // handleSend = () => {
+    //     this.createOrganisation()
+    // }
 
 
-    closeSnackBar = (item) => {
-        this.setState(item)
-    }
+    // closeSnackBar = (item) => {
+    //     this.setState(item)
+    // }
 
 
     render() {
         // const { popupdata } = this.state
         const { createOrganisationsPane, classes } = this.props
         return (
-
-            <Dialog
-                open={createOrganisationsPane}
-                // onClose={this.handleClose}
-                aria-labelledby="form-dialog-title"
-            >
-            <PopUpMessages />
-                <ComponentHeading data={{classes:classes, text:"Create Organisation", styleColor:'#2a2a2fbd'}} />
-                <form className={classes.form} onSubmit={this.handleSubmit}>
-                <DialogTitle id="form-dialog-title"> </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Enter details for request to create an Organisation
-                    </DialogContentText>
-                    <Grid item xs={12}>
-                        <Grid item xs={12}>
+            <Grid item xs={12}>
+                {/* <Header /> */}
+                {/* <PopUpMessages /> */}
+                <Container component="main" maxWidth="xs" className={classes.pageContainer}>
+                    <Typography component="h1" variant="h5">
+                        Create Organisation
+                </Typography>
+                    <form className={classes.form} onSubmit={this.handleLoginSubmit}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -141,9 +108,6 @@ class CreateOrganisations extends Component {
                                     autoFocus
                                 onChange={(e) => this.setState({ organisationName: e.target.value })}
                                 />
-                        </Grid>
-                        <Grid item xs={1}></Grid>
-                        <Grid item xs={12}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -156,9 +120,6 @@ class CreateOrganisations extends Component {
                                     autoFocus
                                 onChange={(e) => this.setState({ organisationAddress: e.target.value })}
                                 />
-                        </Grid>
-                        <Grid item xs={1}></Grid>
-                        <Grid item xs={12}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -172,9 +133,6 @@ class CreateOrganisations extends Component {
                                     autoFocus
                                 onChange={(e) => this.setState({ organisationEmail: e.target.value })}
                                 />
-                        </Grid>
-                        <Grid item xs={1}></Grid>
-                        <Grid item xs={12}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -187,27 +145,29 @@ class CreateOrganisations extends Component {
                                     autoFocus
                                 onChange={(e) => this.setState({ organisationPhone: e.target.value })}
                                 />
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button size="small" onClick={this.handleClose} variant="contained" color="secondary">
-                        Close
-                </Button>
-                    <Button size="small" onClick={this.handleSend} variant="contained" color="primary">
-                    Submit Details
-                </Button>
-                </DialogActions>
+                        
+                        
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            onClick={this.handleSubmit}
+                        >
+                            Create
+                        </Button>
                     </form>
-            </Dialog>
+                </Container>
+            </Grid>
+
+
+            
         )
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(CreateOrganisations))

@@ -65,6 +65,40 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
     dispatch(setIsFetching(false));
 }
 
+export const createOrganisation = (apiData) => async dispatch =>{
+    dispatch(setIsFetching(true))
+    try {
+        const data = await fetch(apiUrl + '/v1/autographamt/organisations', {
+            method:'POST',
+            body: JSON.stringify(apiData),
+            headers: {
+                Authorization: 'bearer ' + accessToken
+            }
+        })
+        const myJson = await data.json()
+        if(myJson.success){
+            swal({
+                title: 'Create organisations',
+                text: myJson.message,
+                icon: 'success'
+            })
+        }else{
+            swal({
+                title: 'Create organisations',
+                text: myJson.message,
+                icon: 'error'
+            })
+        }
+    }
+    catch(e) {
+        swal({
+            title: 'Organisations',
+            text: 'Unable to update organisations, check your internet connection or contact admin',
+            icon: 'error'
+        })
+    }
+    dispatch(setIsFetching(false));
+}
 
 export const setOrganisations = (organisations) => ({
     type: SET_ORGANISATIONS,

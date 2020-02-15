@@ -7,7 +7,8 @@ import {
     SET_SELECTED_PROJECT,
     SET_SELECTED_TOKEN,
     SET_CONCORDANCE,
-    SET_REFERENCE_NUMBER
+    SET_REFERENCE_NUMBER,
+    SET_TRANSLATED_WORD
 } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
@@ -170,11 +171,10 @@ export const getTranslatedText = (projectId, bookList, projectName) => async dis
 
             swal({
                 title: 'Download drafts',
-                text: 'Unable to download drafts ',
+                text: 'Unable to download drafts: ' + myJson.message,
                 icon: 'error'
             });
         }
-        dispatch(setIsFetching(false))
     }
     catch (ex) {
         swal({
@@ -183,7 +183,76 @@ export const getTranslatedText = (projectId, bookList, projectName) => async dis
             icon: 'error'
         });
     }
+    dispatch(setIsFetching(false))
 }
+export const updateTransaltion = (apiData, clear) => async (dispatch, getState) => {
+    dispatch(setIsFetching(true));
+    try {
+        const update = await fetch(apiUrl + 'v1/autographamt/projects/translations', {
+            method: 'POST',
+            body: JSON.stringify(apiData),
+            headers: {
+                Authorization: 'bearer ' + accessToken
+            }
+        })
+        const myJson = await update.json()
+        if (myJson.success) {
+            clear()
+            dispatch(getTranslatedWords(getState().project.selectedToken, getState().project.selectedProject.sourceId, getState().project.selectedProject.targetId))
+            swal({
+                title: 'Token translation',
+                text: myJson.message,
+                icon: 'success'
+            });
+        } else {
+            swal({
+                title: 'Token translation',
+                text: myJson.message,
+                icon: 'error'
+            });
+        }
+    }
+    catch (ex) {
+        swal({
+            title: 'Token translation',
+            text: 'Token translation failed, check your internet connection or contact admin',
+            icon: 'error'
+        });
+    }
+    dispatch(setIsFetching(false));
+}
+
+export const getTranslatedWords = (token, sourceId, targetLanguageId) => async dispatch => {
+    dispatch(setIsFetching(true))
+    try{
+        const data = await fetch(apiUrl + '/v1/translations/' + sourceId + '/' + targetLanguageId + '/' + token, {
+            method: 'GET'
+        })
+        const translatedWords = await data.json()
+        if ("translation" in translatedWords) {
+            const { translation, senses } = translatedWords
+            dispatch(setTranslatedWord(translatedWords))
+        } else {
+            dispatch(setTranslatedWord({
+                translation: '',
+                senses: []
+            }))
+        }
+    }
+    catch(e){
+        swal({
+            title: 'Translation fetch error',
+            text: 'Failed to fetch token translation, check your internet connection or contact admin',
+            icon: 'error'
+        });
+    }
+    dispatch(setIsFetching(false))
+}
+
+export const setTranslatedWord = translation => ({
+    type: SET_TRANSLATED_WORD,
+    translation
+});
 
 export const setSelectedProject = project => ({
     type: SET_SELECTED_PROJECT,

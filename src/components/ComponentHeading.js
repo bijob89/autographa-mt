@@ -5,10 +5,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     root: {
-        backgroundColor: '#3e51b5',
+        flexGrow: 1,
+        backgroundColor: '#294c60',
         // backgroundColor: '#ededf4',
-        color: 'black',
-        padding: '10px 0px'
+        color: 'white',
+        padding: '6px 0px',
+        fontSize: '18px'
       },
 });
 
@@ -23,7 +25,7 @@ class ComponentHeading extends Component {
             styleColor = null
         }
         return (
-            <Typography variant="h5" style={{backgroundColor: styleColor, color: color}} align="center" className={classes.root}>
+            <Typography  align="center" className={classes.root}>
                 {text}
             </Typography>
         )

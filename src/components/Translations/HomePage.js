@@ -138,13 +138,14 @@ class HomePage extends Component {
             <Grid container spacing={2} className={classes.root}>
                 {/* <Grid container> */}
                 { isFetching && <CircleLoader />}
-                    <Grid item xs={6}>
+                <Grid item xs={3}>
+                    <Grid item xs={12}>
                         <MenuBar
                             updateState={this.updateState}
                         />
                     </Grid>
                     {/* <Grid container alignItems="center" justify="center" item xs={2}> */}
-                    <Grid item xs={3}>
+                    {/* <Grid item xs={3}>
                         <Grid container>
                             <Grid itm xs={8}>
                                 
@@ -163,9 +164,9 @@ class HomePage extends Component {
                         </Grid>
                         
                         
-                    </Grid>
+                    </Grid> */}
                     {/* <Grid container alignItems="center" justify="flex-end" item xs={3}> */}
-                    <Grid item xs={3}>
+                    {/* <Grid item xs={3}>
                         <Grid container>
                             <Grid itm xs={8}>
                                 
@@ -181,25 +182,31 @@ class HomePage extends Component {
                             </Grid>
                         </Grid>
                         
-                    </Grid>
+                    </Grid> */}
                 {/* </Grid> */}
                 {/* <Grid container item xs={12}> */}
-                    <Grid item xs={tokenPane}>
+                    <Grid item xs={12}>
                         <TokenList />
                     </Grid>
-                    <Grid item xs={translationPane}>
+                    </Grid>
+                    <Grid item xs={4}>
+                    <Grid item xs={12}>
                         <UpdateTokens />
                     </Grid>
-                    <Grid item xs={concordancePane}
-                        style={{ display: displayConcordancePane }}
+                    <Grid item xs={12} >
+                        <TranslationsWords />
+                    </Grid>
+                    </Grid>
+
+                    <Grid item xs={5}>
+                    <Grid item xs={12}
+                        // style={{ display: displayConcordancePane }}
                     >
                         <Concordance />
                     </Grid>
-                    <Grid item xs={translationWordsPane} style={{ display: this.state.displayTranslationWords }}>
-                        <TranslationsWords />
-                    </Grid>
-                    <Grid item xs={translationNotesPane} style={{ display: this.state.displayTranslationNotes }}>
+                    <Grid item xs={12} >
                         <TranslationsNotes />
+                    </Grid>
                     </Grid>
                 {/* </Grid> */}
             </Grid>

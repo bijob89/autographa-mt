@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import { Typography, CardContent, Paper, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
+import { Typography, CardContent, Paper, createMuiTheme, MuiThemeProvider, Button } from '@material-ui/core';
 import apiUrl from '../GlobalUrl';
 import { Card } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
@@ -15,7 +15,7 @@ import MUIDataTable from "mui-datatables";
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 // import CreateProject from './CreateProject';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router-dom';
 import BooksDownloadable from '../BooksDownloadable';
@@ -120,14 +120,17 @@ class MyProjects extends Component {
                 options: {
                     filter: true,
                     customBodyRender: (value, row) => {
-                        return <p onClick={() => this.handleDownload(value)}>Download Books</p>
+                        return <Button variant="contained" size="small" color="primary" onClick={() => this.handleDownload(value)}>Download drafts</Button>
                     }
                 }
             },
             {
                 name: 'Translate',
                 options: {
-                    filter: true
+                    filter: true,
+                    customBodyRender: (value) => {
+                        return <Link to={`/app/translations/projects/${value}`}>Translate</Link>
+                    }
                 }
             }
         ]

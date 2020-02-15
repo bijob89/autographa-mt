@@ -22,6 +22,12 @@ export const menus = [
                 roles: ['member', 'ad', 'sa'],
                 key: 'users'
             },
+            {
+                name: 'Create Organisation',
+                link: '/app/organisations/create',
+                roles: ['m', 'sa'],
+                key: 'create_organisations'
+            }
 
         ]
     },
@@ -42,12 +48,6 @@ export const menus = [
                 roles: ['m', 'ad', 'sa'],
                 key: 'my_projects'
             },
-            {
-                name: 'Download Draft',
-                link: '/app/translations/download',
-                roles: ['m', 'ad', 'sa'],
-                key: 'download_draft'
-            }
         ]
     },
 

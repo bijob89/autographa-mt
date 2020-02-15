@@ -8,7 +8,8 @@ import {
     SET_SELECTED_TOKEN,
     SET_CONCORDANCE,
     SET_REFERENCE_NUMBER,
-    CLEAR_STATE
+    CLEAR_STATE,
+    SET_TRANSLATED_WORD
 } from '../actions/actionConstants';
 
 const initialState = {
@@ -21,7 +22,9 @@ const initialState = {
     selectedToken: '',
     concordance: {},
     reference: '',
-    verseNum: {}
+    verseNum: {},
+    translation: '',
+    senses: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -59,7 +62,12 @@ const reducer = (state = initialState, action) => {
         case SET_SELECTED_TOKEN:
             return {
                 ...state,
-                selectedToken: action.token
+                selectedToken: action.token,
+                concordance: {},
+                reference: '',
+                verseNum: {},
+                translation: '',
+                senses: []
             }
         case SET_CONCORDANCE:
             return {
@@ -71,6 +79,13 @@ const reducer = (state = initialState, action) => {
                 ...state,
                 reference: action.reference.reference,
                 verseNum: action.reference.verseNum
+            }
+        case SET_TRANSLATED_WORD:
+            console.log('action', action)
+            return {
+                ...state,
+                translation: action.translation.translation,
+                senses: action.translation.senses
             }
         case CLEAR_STATE:
             return {

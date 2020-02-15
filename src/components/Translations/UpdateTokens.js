@@ -9,6 +9,7 @@ import apiUrl from '../GlobalUrl';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux'
 import { displaySnackBar } from '../../store/actions/sourceActions';
+import { getTranslatedWords, updateTransaltion } from '../../store/actions/projectActions';
 
 const accessToken = localStorage.getItem('accessToken')
 
@@ -23,9 +24,9 @@ const styles = theme => ({
         marginLeft: '10px'
     },
     containerGrid: {
-        width: '97%',
-        marginLeft: '2%',
-        marginRight: '2%',
+        // width: '97%',
+        // marginLeft: '2%',
+        // marginRight: '2%',
         border: '1px solid "#2a2a2fbd"',
         boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
         height: '100%',
@@ -46,76 +47,60 @@ class UpdateTokens extends Component {
         token: ''
     }
 
-    async updateTransaltion() {
-        const { project, token } = this.props
-        const { translation, sense } = this.state
+
+
+    // componentWillReceiveProps(nextProps) {
+    //     const { token, project } = nextProps
+    //     if (token) {
+    //         this.setState({ token, targetLanguageId: project.targetId, sourceId: project.sourceId })
+    //         this.getTranslatedWords(token, project.sourceId, project.targetId)
+    //     }
+
+    // }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.selectedToken !== this.props.selectedToken) {
+            if (this.props.selectedProject.sourceId) {
+                const { selectedToken, selectedProject } = this.props;
+                this.props.dispatch(getTranslatedWords(selectedToken, selectedProject.sourceId, selectedProject.targetId))
+            }
+        }
+    }
+
+    clearTransaltionState = () => {
+        this.setState({
+            translation: '',
+            sense: ''
+        })
+    }
+
+    updateTokenTranslation = () => {
+        const { selectedProject, selectedToken, dispatch } = this.props;
+        const { translation } = this.state;
         const apiData = {
-            projectId: project.projectId,
-            token: token,
+            projectId: selectedProject.projectId,
+            token: selectedToken,
             translation: translation,
+            senses: ''
+        }
+        dispatch(updateTransaltion(apiData, this.clearTransaltionState))
+    }
+
+    updateTokenSense = () => {
+        const { selectedProject, selectedToken, dispatch } = this.props;
+        const { sense } = this.state;
+        const apiData = {
+            projectId: selectedProject.projectId,
+            token: selectedToken,
+            translation: '',
             senses: sense
         }
-        try {
-            const update = await fetch(apiUrl + 'v1/autographamt/projects/translations', {
-                method: 'POST',
-                body: JSON.stringify(apiData),
-                headers: {
-                    Authorization: 'bearer ' + accessToken
-                }
-            })
-            const myJson = await update.json()
-            if (myJson.success) {
-                this.setState({
-                    translation: ''
-                }, () => this.getTranslatedWords())
-                this.props.displaySnackBar({
-                    snackBarMessage: myJson.message,
-                    snackBarOpen: true,
-                    snackBarVariant: (myJson.success) ? "success" : "error"
-                })
-            } else {
-                this.props.displaySnackBar({
-                    snackBarMessage: myJson.message,
-                    snackBarOpen: true,
-                    snackBarVariant: (myJson.success) ? "success" : "error"
-                })
-            }
-        }
-        catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "Server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-        }
+        dispatch(updateTransaltion(apiData, this.clearTransaltionState))
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { token, project } = nextProps
-        if (token) {
-            this.setState({ token, targetLanguageId: project.targetId, sourceId: project.sourceId })
-            this.getTranslatedWords(token, project.sourceId, project.targetId)
-        }
-
-    }
-
-    async getTranslatedWords(token = this.state.token, sourceId = this.state.sourceId, targetLanguageId = this.state.targetLanguageId) {
-        if (token) {
-            const data = await fetch(apiUrl + '/v1/translations/' + sourceId + '/' + targetLanguageId + '/' + token, {
-                method: 'GET'
-            })
-            const translatedWords = await data.json()
-            if (translatedWords.translation) {
-                const { translation, senses } = translatedWords
-                this.setState({ translation: translation, senses: senses })
-            } else {
-                this.setState({ translation: '', senses: [] })
-            }
-        }
-    }
 
     displaySenses() {
-        const { senses } = this.state
+        const { senses } = this.props
         if (senses) {
             return senses.map(item => {
                 return (
@@ -130,32 +115,32 @@ class UpdateTokens extends Component {
         }
     }
 
-    handleSubmit = e => {
-        e.preventDefault();
-        this.updateTransaltion();
-    }
+    // handleSubmit = e => {
+    //     e.preventDefault();
+    //     this.updateTransaltion();
+    // }
 
     closeSnackBar = (item) => {
         this.setState(item)
     }
 
-    submitSenses = () => {
-        const { senses, sense } = this.state
-        if (sense) {
-            senses.push(sense)
-            this.updateTransaltion()
-            this.setState({ sense: '' })
-            this.getTranslatedWords()
-        }
-    }
+    // submitSenses = () => {
+    //     const { senses, sense } = this.state
+    //     if (sense) {
+    //         senses.push(sense)
+    //         this.updateTransaltion()
+    //         this.setState({ sense: '' })
+    //         this.getTranslatedWords()
+    //     }
+    // }
 
     render() {
-        const { classes, token, project } = this.props
-
-        const { translation } = this.state
+        const { classes, selectedProject, selectedToken, translation, senses } = this.props
+        console.log('update', this.props)
+        // const { translation } = this.state
         var displayLanguage = ''
-        if (project) {
-            displayLanguage = project.projectName.split('|')[0].split('-')[2]
+        if (selectedProject.projectName) {
+            displayLanguage = selectedProject.projectName.split('|')[0].split('-')[2]
         }
         return (
             <Grid item xs={12} className={classes.containerGrid}>
@@ -169,7 +154,7 @@ class UpdateTokens extends Component {
                             disabled
                             margin="dense"
                             variant="outlined"
-                            label={token}
+                            label={selectedToken}
                             className={classes.inputField}
                         />
                     </Grid>
@@ -177,7 +162,7 @@ class UpdateTokens extends Component {
                         <TextField
                             required
                             label="Enter Translation"
-                            value={translation}
+                            value={this.state.translation ? this.state.translation : translation}
                             onChange={(e) => this.setState({ translation: e.target.value })}
                             margin="dense"
                             variant="outlined"
@@ -193,7 +178,7 @@ class UpdateTokens extends Component {
                         className={classes.button}
                         // style={{ marginLeft: '30%', marginTop: '3%' }}
                         // style={{ margin: 'auto' }}
-                        onClick={this.handleSubmit}>Update Token</Button>
+                        onClick={this.updateTokenTranslation}>Update Token</Button>
                 </Grid>
                 <Grid container item xs={12}>
                     {/* <Grid item xs={12} style={{ marginTop: '5%', marginBottom: '5px' }}> */}
@@ -220,7 +205,7 @@ class UpdateTokens extends Component {
                                 className={classes.button}
                                 variant="contained"
                                 color="secondary"
-                                onClick={this.submitSenses}>Add Senses</Button>
+                                onClick={this.updateTokenSense}>Add Senses</Button>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -241,16 +226,16 @@ class UpdateTokens extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        token: state.sources.token,
-        project: state.sources.project
+        selectedProject: state.project.selectedProject,
+        selectedToken: state.project.selectedToken,
+        translation: state.project.translation,
+        senses: state.project.senses
     }
 }
 
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UpdateTokens))

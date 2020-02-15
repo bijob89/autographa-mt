@@ -31,7 +31,9 @@ if (role === 'sa') {
 }
 console.log('menus', menus)
 class DrawerPane extends Component {
-
+    state = {
+        expanded: true
+    }
 
     // async getUsers(){
     //     const {updateState, userStatus} = this.props.data
@@ -109,6 +111,7 @@ class DrawerPane extends Component {
     }
     render() {
         const { classes, current_user } = this.props
+        const { expanded } = this.state;
         return (
             <Drawer
                 className={classes.drawer}
@@ -123,7 +126,7 @@ class DrawerPane extends Component {
                     menus.map(menu => {
                         if(menu.roles.includes(current_user.role)){
                             return (
-                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }} key={menu.key}>
+                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }} key={menu.key} expanded={expanded} onClick={() => this.setState({expanded: !expanded})}>
                                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }} />}>
                                         <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
                                     </ExpansionPanelSummary>
