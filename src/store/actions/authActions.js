@@ -1,5 +1,5 @@
 import jwt_decode from 'jwt-decode';
-import { SET_CURRENT_USER } from './actionConstants';
+import { SET_CURRENT_USER, CLEAR_STATE } from './actionConstants';
 
 export const validateAccessToken = () => async dispatch => {
     let decoded;
@@ -27,6 +27,10 @@ export const validateAccessToken = () => async dispatch => {
         }
     }
 }
+
+export const clearState = () => ({
+    type: CLEAR_STATE
+});
 
 export const setAccessToken = (token) => {
     return (dispatch, getState) => {

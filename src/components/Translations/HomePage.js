@@ -133,6 +133,7 @@ class HomePage extends Component {
             // translationNotes,
             displayTranslationWordSwitch
         } = this.state
+        console.log('homepage', this.props)
         return (
             <Grid container spacing={2} className={classes.root}>
                 {/* <Grid container> */}

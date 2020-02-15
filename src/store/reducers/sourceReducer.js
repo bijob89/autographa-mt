@@ -1,4 +1,4 @@
-import { SET_BIBLE_LANGUAGES, SET_ALL_LANGUAGES, SET_IS_FETCHING } from '../actions/actionConstants';
+import { SET_BIBLE_LANGUAGES, SET_ALL_LANGUAGES, SET_IS_FETCHING, CLEAR_STATE } from '../actions/actionConstants';
 const initState = {
     bibleLanguages: [],
     allLanguages: [],
@@ -21,6 +21,10 @@ const sourceReducer = (state = initState, action) => {
             return {
                 ...state,
                 isFetching: action.status
+            }
+        case CLEAR_STATE:
+            return {
+                ...initState
             }
         case 'GET_SOURCES':
             return {

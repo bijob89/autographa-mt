@@ -12,6 +12,7 @@ import { displaySnackBar, selectProject } from '../store/actions/sourceActions';
 import ComponentHeading from './ComponentHeading';
 import apiUrl from './GlobalUrl';
 import PopUpMessages from './PopUpMessages';
+import { getTranslatedText } from '../store/actions/projectActions';
 var FileSaver = require('file-saver');
 
 var accessToken = localStorage.getItem('accessToken')
@@ -31,76 +32,90 @@ class BooksDownloadable extends Component {
     }
 
 
-    componentWillReceiveProps(nextProps){
-        const { project } = nextProps
-        // const { project } =  this.props
-        if(project){
-            let targetBooks = project.books
-            let targetBooksChecked = {}
-            targetBooks.map(book => targetBooksChecked[book] = {"checked": false})
-            this.setState({ targetBooks, targetBooksChecked})
-        }
-    }
+    // componentWillReceiveProps(nextProps){
+    //     const { project } = nextProps
+    //     // const { project } =  this.props
+    //     if(project){
+    //         let targetBooks = project.books
+    //         let targetBooksChecked = {}
+    //         targetBooks.map(book => targetBooksChecked[book] = {"checked": false})
+    //         this.setState({ targetBooks, targetBooksChecked})
+    //     }
+    // }
 
-    async getTranslatedText() {
-        const { project } =  this.props
-        const { targetBooksChecked, targetBooks } = this.state
-        var bookList = []
-        targetBooks.map(book => {
-            if (targetBooksChecked[book]['checked']) {
-                bookList.push(book)
-            }
-        })
-        const apiData = {
-            projectId: project.projectId,
-            bookList: bookList
-        }
-        try {
-            const data = await fetch(apiUrl + 'v1/downloaddraft', {
-                method: 'POST',
-                body: JSON.stringify(apiData),
-                headers: {
-                    Authorization: 'bearer ' + accessToken
-                }
-            })
-            const myJson = await data.json()
-            if("translatedUsfmText" in myJson){
-                const usfmTexts = myJson.translatedUsfmText
-                Object.keys(usfmTexts).map(book => {
-                    let blob = new Blob([usfmTexts[book]], { type: "text/plain;charset=utf-8" });
-                    FileSaver.saveAs(blob, book + "_" + project.projectName.split("|")[0] + "_.usfm");
-                })
-            }
-        }
-        catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-            // this.setState({ variant: "error", message: "server Error", snackBarOpen: true })
-        }
-    }
+    // componentDidUpdate(prevProps) {
+    //     const { selectedProject } = this.props;
+    //     if(prevProps.selectedProject !== selectedProject){
+
+    //     }
+    // }
+
+    // async getTranslatedText(projectId, bookList) {
+        // const { selectedProject } =  this.props
+        // const { targetBooksChecked, targetBooks } = this.state
+        // var bookList = []
+        // targetBooks.map(book => {
+        //     if (targetBooksChecked[book]['checked']) {
+        //         bookList.push(book)
+        //     }
+        // })
+    //     const apiData = {
+    //         projectId,
+    //         bookList
+    //     }
+    //     try {
+    //         const data = await fetch(apiUrl + 'v1/downloaddraft', {
+    //             method: 'POST',
+    //             body: JSON.stringify(apiData),
+    //             headers: {
+    //                 Authorization: 'bearer ' + accessToken
+    //             }
+    //         })
+    //         const myJson = await data.json()
+    //         if("translatedUsfmText" in myJson){
+    //             const usfmTexts = myJson.translatedUsfmText
+    //             Object.keys(usfmTexts).map(book => {
+    //                 let blob = new Blob([usfmTexts[book]], { type: "text/plain;charset=utf-8" });
+    //                 FileSaver.saveAs(blob, book + "_" + project.projectName.split("|")[0] + "_.usfm");
+    //             })
+    //         }
+    //     }
+    //     catch (ex) {
+    //         this.props.displaySnackBar({
+    //             snackBarMessage: "server Error",
+    //             snackBarOpen: true,
+    //             snackBarVariant: "error"
+    //         })
+    //         // this.setState({ variant: "error", message: "server Error", snackBarOpen: true })
+    //     }
+    // }
 
 
     handleChange = (book) => {
-        const {targetBooksChecked} = this.state
+        var { targetBooks } = this.state
         // const temp = targetBooksChecked.book
-        targetBooksChecked[book]['checked'] = !targetBooksChecked[book]['checked']
-        this.setState({ targetBooksChecked })
+        const isChecked = targetBooks.includes(book);
+        if(isChecked) {
+            targetBooks = targetBooks.filter(item => item !== book)
+        } else {
+            targetBooks.push(book)
+        }
+        // targetBooksChecked[book]['checked'] = !targetBooksChecked[book]['checked']
+        this.setState({ targetBooks })
     }
 
     getBooksCheckbox = () => {
         const { targetBooks, targetBooksChecked } = this.state
-        if (targetBooks) {
-            return targetBooks.map((book, index) => {
+        const { project } = this.props
+        if (project.books) {
+            return project.books.map((book, index) => {
                 return (
                     <FormControlLabel key={book}
                         control={
                             <Checkbox
-                                checked={targetBooksChecked[book]['checked']}
+                                checked={targetBooks.includes(book)}
                                 onChange={() => this.handleChange(book)}
-                                value={this.state.targetBooksChecked[book].checked}
+                                value={targetBooks.includes(book)}
                             />
                         }
                         label={book}
@@ -109,12 +124,20 @@ class BooksDownloadable extends Component {
             })
         }
     }
+    handleDownload = () => {
+        const { project, dispatch } = this.props;
+        const { targetBooks } = this.state;
+        if(project.projectId) {
+            dispatch(getTranslatedText(project.projectId, targetBooks, project.projectName))
+        }
+
+    }
     render() {
-        const { booksDialog, booksPane, classes } = this.props
+        const { updateState, booksPane, classes, project } = this.props
         return (
             <Dialog
                     open={booksPane}
-                    onClose={() => booksDialog({booksPane: false})}
+                    onClose={() => updateState({booksPane: false})}
                     // value={this.state.value}
                 >
                     <PopUpMessages />
@@ -126,8 +149,8 @@ class BooksDownloadable extends Component {
                     </DialogContent>
                     <DialogActions>
                         {/* <Button onClick={this.handleClose} variant="raised" color="primary">Close</Button> */}
-                        <Button onClick={() => booksDialog({booksPane: false})} size="small" variant="contained" color="secondary" >Close</Button>
-                        <Button onClick={() => this.getTranslatedText()} variant="contained" color="primary" >Download</Button>
+                        <Button onClick={() => updateState({booksPane: false})} size="small" variant="contained" color="secondary" >Close</Button>
+                        <Button onClick={this.handleDownload} variant="contained" color="primary" >Download</Button>
                     </DialogActions>
                 </Dialog>
         )
@@ -135,21 +158,14 @@ class BooksDownloadable extends Component {
 }
 
 
-const mapStateToProps = (state) => {
-    return {
-        booksPane: state.dialog.booksPane,
-        project: state.sources.project
-    }
-}
+const mapStateToProps = (state) => ({
+    selectedProject: state.project.selectedProject
+})
 
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp)),
-        selectProject: (project) => dispatch(selectProject(project)),
-        booksDialog: (status) => dispatch(booksDialog(status))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(BooksDownloadable));

@@ -82,6 +82,7 @@ class TokenList extends Component {
 
     render() {
         const { classes } = this.props
+        console.log('Token list', this.props)
         return (
             <Grid item xs={12} className={classes.containerGrid}>
                 <Grid item xs={12}>

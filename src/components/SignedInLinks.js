@@ -5,7 +5,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux';
-import { setAccessToken } from '../store/actions/authActions';
+import { setAccessToken, clearState } from '../store/actions/authActions';
 
 // let decoded;
 // let tokenAliveFlag = false
@@ -31,8 +31,10 @@ class SignedInLinks extends Component {
     }
 
     logOut = () => {
-        this.props.setAccessToken({accessToken: null})
+        this.props.dispatch(clearState())
+        // this.props.setAccessToken({accessToken: null})
         localStorage.removeItem('accessToken')
+        window.location = "/"
     }
 
     handleMenu = (event) => {
@@ -78,16 +80,15 @@ class SignedInLinks extends Component {
                 console.log("logged out")
             }
         }
+        console.log('Header', this.props)
+        const { current_user } = this.props;
         return (
 
             <div>
-                {(accessToken && decoded.role === 'sa' && tokenAliveFlag) ? (
-                    <div>
-                        <Link to="/dashboard" className={classes.link}>Dashboard</Link>
-                        {/* <Link to="/upload" className={classes.link}>Upload Souce</Link> */}
-                        <Link to="/viewsources" className={classes.link}>View Available Sources</Link>
-                        <Link to="/download" className={classes.link}>Download Draft</Link>
-                        <label color="inherit" style={{ padding: '5px' }}>Welcome, {firstName.charAt(0).toUpperCase() + firstName.slice(1)}</label>
+                {
+                    current_user.firstName ?  (
+                        <div>
+                            <label color="inherit" style={{ padding: '5px' }}>Welcome, {current_user.firstName.charAt(0).toUpperCase() + current_user.firstName.slice(1)}</label>
                         <IconButton
                             aria-owns={isMenuOpen ? 'material-appbar' : undefined}
                             aria-haspopup="true"
@@ -98,66 +99,31 @@ class SignedInLinks extends Component {
                         </IconButton>
                         {this.getMenuItems()}
                     </div>
-                ) : (
-                        (accessToken && decoded.role === 'ad' && tokenAliveFlag) ? (
-                            <div>
-                                <Link to="/dashboard" className={classes.link}>Dashboard</Link>
-                                {/* <Link to="/upload" className={classes.link}>Upload Souce</Link> */}
-                                <Link to="/viewsources" className={classes.link}>View Available Sources</Link>
-                                <Link to="/download" className={classes.link}>Download Draft</Link>
-                                {/* <Link to="/" onClick={() => LogOut()} className={classes.link}>Log Out</Link> */}
-                                <label color="inherit" style={{ padding: '5px' }}>Welcome, {firstName.charAt(0).toUpperCase() + firstName.slice(1)}</label>
-                                <IconButton
-                                    aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-                                    aria-haspopup="true"
-                                    onClick={this.handleMenu}
-                                    color="inherit"
-                                >
-                                    <AccountCircle />
-                                </IconButton>
-                                {this.getMenuItems()}
-                            </div>
-                        ) : (
-                                (accessToken && decoded.role === 'm' && tokenAliveFlag) ? (
-                                    <div>
-                                        <Link to="/dashboard" className={classes.link}>Dashboard</Link>
-                                        <Link to="/viewsources" className={classes.link}>View Available Sources</Link>
-                                        <Link to="/download" className={classes.link}>Download Draft</Link>
-                                        {/* <Link to="/" onClick={() => LogOut()} className={classes.link}>Log Out</Link> */}
-                                        <label color="inherit" style={{ padding: '5px' }}>Welcome, {firstName.charAt(0).toUpperCase() + firstName.slice(1)}</label>
-                                        <IconButton
-                                            aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-                                            aria-haspopup="true"
-                                            onClick={this.handleMenu}
-                                            color="inherit"
-                                        >
-                                            <AccountCircle />
-                                        </IconButton>
-                                        {this.getMenuItems()}
-                                    </div>
-                                ) : (
-                                        <div>
-                                            <Link to="/signin" className={classes.link}>Sign In</Link>
-                                            <Link to="/signup" className={classes.link}>Sign Up</Link>
-                                        </div>
-                                    )
-                            )
-                    )}
+                    ) 
+                    : (
+                    <div>
+                    <Link to="/signin" className={classes.link}>Sign In</Link>
+                    <Link to="/signup" className={classes.link}>Sign Up</Link>
+                    </div>)
+                }
+                
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        accessToken: state.auth.accessToken
-    }
-}
+const mapStateToProps = state => ({
+    current_user: state.auth.current_user
+})
 
-const mapDispatchToProps = dispatch => {
-    return {
-        setAccessToken: (accessToken) => dispatch(setAccessToken(accessToken))
-    }
-}
+// const mapDispatchToProps = dispatch => {
+//     return {
+//         setAccessToken: (accessToken) => dispatch(setAccessToken(accessToken))
+//     }
+// }
+
+const mapDispatchToProps = dispatch => ({
+    dispatch
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedInLinks);

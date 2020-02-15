@@ -1,4 +1,4 @@
-import { SET_ORGANISATIONS, SET_IS_FETCHING } from '../actions/actionConstants';
+import { SET_ORGANISATIONS, SET_IS_FETCHING, CLEAR_STATE } from '../actions/actionConstants';
 
 const initialState = {
     organisations: [],
@@ -16,6 +16,10 @@ const reducer = (state=initialState, action) => {
             return {
                 ...state,
                 isFetching: action.status
+            }
+        case CLEAR_STATE:
+            return {
+                ...initialState
             }
         default:
             return {

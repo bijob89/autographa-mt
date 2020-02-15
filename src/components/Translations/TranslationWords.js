@@ -53,13 +53,11 @@ class TranslationWords extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps){
-        const { project, token } = nextProps
-        const { currentToken } = this.state
-        if(token && token!== currentToken){
-            this.getTranslationWords(project.sourceId, token)
-        }else{
-            this.setState({translationWords: ''})
+    componentDidUpdate(prevProps){
+        const { selectedProject, selectedToken } = this.props
+        // const { currentToken } = this.state
+        if(prevProps.selectedToken !== selectedToken){
+            this.getTranslationWords(selectedProject.sourceId, selectedToken)
         }
     }
 
@@ -113,11 +111,9 @@ class TranslationWords extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        token: state.sources.token,
-        project: state.sources.project
-    }
-}
+const mapStateToProps = (state) => ({
+        selectedToken: state.project.selectedToken,
+        selectedProject: state.project.selectedProject
+})
 
 export default connect(mapStateToProps)(withStyles(styles)(TranslationWords))

@@ -6,7 +6,9 @@ import {
     SET_TOKEN_LIST,
     SET_SELECTED_PROJECT,
     SET_SELECTED_TOKEN,
-    SET_CONCORDANCE
+    SET_CONCORDANCE,
+    SET_REFERENCE_NUMBER,
+    CLEAR_STATE
 } from '../actions/actionConstants';
 
 const initialState = {
@@ -17,8 +19,9 @@ const initialState = {
     tokenList: [],
     selectedProject: {},
     selectedToken: '',
-    concordance: {}
-    
+    concordance: {},
+    reference: '',
+    verseNum: {}
 };
 
 const reducer = (state = initialState, action) => {
@@ -62,6 +65,16 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 concordance: action.concordance
+            }
+        case SET_REFERENCE_NUMBER:
+            return {
+                ...state,
+                reference: action.reference.reference,
+                verseNum: action.reference.verseNum
+            }
+        case CLEAR_STATE:
+            return {
+                ...initialState
             }
         default:
             return {

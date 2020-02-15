@@ -105,9 +105,13 @@ class TranslationNotes extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        reference: state.sources.reference,
-        verseNum: state.sources.verseNum
+        reference: state.project.reference,
+        verseNum: state.project.verseNum
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(TranslationNotes))
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TranslationNotes));

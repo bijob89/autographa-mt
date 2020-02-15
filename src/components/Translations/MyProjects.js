@@ -18,6 +18,9 @@ import AddIcon from '@material-ui/icons/Add';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router-dom';
+import BooksDownloadable from '../BooksDownloadable';
+
+import swal from 'sweetalert';
 
 const getMuiTheme = () => createMuiTheme({
     overrides: {
@@ -72,6 +75,8 @@ class MyProjects extends Component {
     state = {
         redirect: null,
         open: false,
+        booksPane: false,
+        project: {},
         columns: [
             {
                 name: 'id',
@@ -109,8 +114,43 @@ class MyProjects extends Component {
                 options: {
                     filter: true
                 }
+            },
+            {
+                name: 'Download',
+                options: {
+                    filter: true,
+                    customBodyRender: (value, row) => {
+                        return <p onClick={() => this.handleDownload(value)}>Download Books</p>
+                    }
+                }
+            },
+            {
+                name: 'Translate',
+                options: {
+                    filter: true
+                }
             }
         ]
+    }
+
+    handleDownload = (projectId) => {
+        var project = this.props.userProjects.filter(item => item.projectId === projectId)
+        if(project.length > 0){
+            this.setState({
+                project: project[0],
+                booksPane: true
+            })
+        } else {
+            swal({
+                title: 'Download drafts',
+                text: 'No downloadable books available ',
+                icon: 'error'
+            });
+        }
+    }
+
+    updateState = (data) => {
+        this.setState(data);
     }
 
     componentDidMount() {
@@ -127,22 +167,25 @@ class MyProjects extends Component {
                 project.projectName.split('|')[1], 
                 project.organisationName, 
                 project.version.name,
-                project.books.length
+                project.books.length,
+                project.projectId, 
+                project.projectId, 
             ]
         });
         const options = {
             selectableRows: false,
-            onRowClick: rowData => this.setState({redirect: rowData[0]})
+            // onRowClick: rowData => this.setState({redirect: rowData[0]})
         };
         console.log('my projects', this.props)
-        const { redirect } = this.state;
+        const { redirect, project, booksPane } = this.state;
         if(redirect) {
-            return <Redirect to={`/app/translations/${redirect}`} />
+            return <Redirect to={`/app/translations/projects/${redirect}`} />
         }
         return (
             <div className={classes.root}>
                 { isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
+                    <BooksDownloadable updateState={this.updateState} project={project} booksPane={booksPane} />
                 <MUIDataTable 
                     title={"My Projects"} 
                     data={data} 

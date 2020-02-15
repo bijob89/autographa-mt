@@ -13,6 +13,7 @@ import jwt_decode from 'jwt-decode';
 import { Redirect, Route, Switch, BrowserRouter } from 'react-router-dom';
 import { menus } from '../api/menu';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 let decoded;
 var role;
@@ -23,13 +24,13 @@ if (accessToken) {
     role = decoded.role
 }
 var drawerItems;
-if(role === 'sa'){
+if (role === 'sa') {
     drawerItems = ['List Organisations', 'List Users', 'List Projects', 'Create Projects', 'Create Organisation']
-}else{
+} else {
     drawerItems = ['List Users', 'List Projects', 'Create Projects', 'Create Organisation']
 }
 console.log('menus', menus)
-export default class DrawerPane extends Component {
+class DrawerPane extends Component {
 
 
     // async getUsers(){
@@ -61,11 +62,11 @@ export default class DrawerPane extends Component {
     //     this.getUsers()
     // }
 
-    async getOrganisations(){
-        const {updateState, organisationsStatus} = this.props.data
+    async getOrganisations() {
+        const { updateState, organisationsStatus } = this.props.data
 
         const data = await fetch(apiUrl + '/v1/autographamt/organisations', {
-            method:'GET',
+            method: 'GET',
             headers: {
                 Authorization: 'bearer ' + accessToken
             }
@@ -73,15 +74,15 @@ export default class DrawerPane extends Component {
         const organisationsData = await data.json()
         organisationsData.map(item => {
             organisationsStatus[item.organisationId] = {
-                "verified":item.verified
+                "verified": item.verified
             }
         })
         updateState({
-            organisationsStatus:organisationsStatus, 
-            organisationsData: organisationsData, 
-            listOrganisationsPane:true, 
+            organisationsStatus: organisationsStatus,
+            organisationsData: organisationsData,
+            listOrganisationsPane: true,
             listUsersPane: false,
-            createProjectsPane:false,
+            createProjectsPane: false,
             listProjectsPane: false,
             assignmentsPane: false,
             listUserProjectsPane: false,
@@ -89,7 +90,7 @@ export default class DrawerPane extends Component {
     }
 
     handleDashboard = (text) => {
-        switch(text){
+        switch (text) {
             case 'List Organisations': this.handleOrganisations(); break;
             case 'Assignments': this.handleStatistics(); break;
             case 'Create Organisation': this.createOrganisations(); break;
@@ -107,7 +108,7 @@ export default class DrawerPane extends Component {
         console.log(history.push(this.handleDashboard(text)))
     }
     render() {
-        const {classes, history} = this.props
+        const { classes, current_user } = this.props
         return (
             <Drawer
                 className={classes.drawer}
@@ -117,39 +118,45 @@ export default class DrawerPane extends Component {
                 }}
             >
                 <div className={classes.toolbar} />
-                
+
                 {
                     menus.map(menu => {
-                        return (
-                        <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }} key={menu.key}>
-                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{color:'white'}} />}>
-                                <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
-                            </ExpansionPanelSummary>
-                            <List>
-                            {
-                                menu.child && 
-                                menu.child.map(childMenu => {
-                                    return (
-                                        <Link to={childMenu.link}>
-                                        <ListItem button key={childMenu.key} className={classes.exp}
-                            // onClick={(e) => this.checkWhat(text)}
-                            >
-                                <ListItemText disableTypography divider="true"
-                                    primary={<Typography variant="caption" style={{ color: '#FFFFFF' }}
-                                    
-                                    >{childMenu.name}</Typography>}
-                                />
-                            </ListItem>
-                            </Link>
-                                    )
-                                })
-                            }
-                            </List>
-                        </ExpansionPanel>
-                        )
+                        if(menu.roles.includes(current_user.role)){
+                            return (
+                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }} key={menu.key}>
+                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }} />}>
+                                        <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
+                                    </ExpansionPanelSummary>
+                                    <List>
+                                        {
+                                            menu.child &&
+                                            menu.child.map(childMenu => {
+                                                if(childMenu.roles.includes(current_user.role)) {
+                                                    return (
+                                                        <Link to={childMenu.link}>
+                                                            <ListItem button key={childMenu.key} className={classes.exp}
+                                                            // onClick={(e) => this.checkWhat(text)}
+                                                            >
+                                                                <ListItemText disableTypography divider="true"
+                                                                    primary={<Typography variant="caption" style={{ color: '#FFFFFF' }}
+        
+                                                                    >{childMenu.name}</Typography>}
+                                                                />
+                                                            </ListItem>
+                                                        </Link>
+                                                    )
+                                                }
+                                                
+                                            })
+                                        }
+                                    </List>
+                                </ExpansionPanel>
+                            )
+                        }
+                        
                     })
                 }
-                
+
                 {/* <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }}>
                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{color:'white'}} />}>
                         <Typography color="inherit" className={classes.heading}>Dashboard</Typography>
@@ -191,3 +198,10 @@ export default class DrawerPane extends Component {
         )
     }
 }
+
+const mapStateToProps = state => ({
+    current_user: state.auth.current_user
+});
+
+
+export default connect(mapStateToProps)(DrawerPane);

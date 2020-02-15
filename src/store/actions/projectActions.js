@@ -1,32 +1,37 @@
-import { 
-    SET_PROJECTS, 
-    SET_IS_FETCHING, 
+import {
+    SET_PROJECTS,
+    SET_IS_FETCHING,
     SET_USER_PROJECTS,
-    SET_SELECTED_BOOK, 
+    SET_SELECTED_BOOK,
     SET_TOKEN_LIST,
     SET_SELECTED_PROJECT,
     SET_SELECTED_TOKEN,
-    SET_CONCORDANCE
+    SET_CONCORDANCE,
+    SET_REFERENCE_NUMBER
 } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
-import { setDisplayName } from 'recompose';
+// import { setDisplayName } from 'recompose';
+var FileSaver = require('file-saver');
 
 const accessToken = localStorage.getItem('accessToken');
 
 export const fetchProjects = () => async (dispatch) => {
     dispatch(setIsFetching(true));
-    try{
+    try {
         const data = await fetch(apiUrl + 'v1/autographamt/projects', {
-            method:'GET',
+            method: 'GET',
             headers: {
                 "Authorization": 'bearer ' + accessToken
             }
         });
         const projectLists = await data.json();
-        dispatch(setProjects(projectLists));
+        if (!('message' in projectLists)) {
+            dispatch(setProjects(projectLists));
+        }
+
     }
-    catch(e){
+    catch (e) {
         swal({
             title: 'Projects',
             text: 'Unable to fetch projects, check your internet connection or contact admin',
@@ -39,7 +44,7 @@ export const fetchProjects = () => async (dispatch) => {
 
 export const createProject = (apiData, close, clearState) => async dispatch => {
     dispatch(setIsFetching(true))
-    try{
+    try {
         const data = await fetch(apiUrl + '/v1/autographamt/organisations/projects', {
             method: 'POST',
             body: JSON.stringify(apiData),
@@ -66,7 +71,7 @@ export const createProject = (apiData, close, clearState) => async dispatch => {
                 icon: 'error'
             });
             dispatch(setIsFetching(false));
-    
+
         }
     }
     catch (e) {
@@ -122,10 +127,10 @@ export const fetchTokenList = (currentBook, sourceId) => async dispatch => {
     // this.setState({ tokenList: tokenList })
 }
 
-export const fetchConcordances = (token, sourceId, book ) => async dispatch => {
-    if(book){
+export const fetchConcordances = (token, sourceId, book) => async dispatch => {
+    if (book) {
         dispatch(setIsFetching(true))
-        try{
+        try {
             const data = await fetch(apiUrl + '/v1/concordances/' + sourceId + '/' + book + '/' + token, {
                 method: 'GET'
             })
@@ -133,10 +138,50 @@ export const fetchConcordances = (token, sourceId, book ) => async dispatch => {
             dispatch(setConcordance(concordance))
             dispatch(setIsFetching(false))
         }
-        catch(e) {
+        catch (e) {
             dispatch(setIsFetching(false))
         }
         // await this.setState({ concordance: concordance })
+    }
+}
+
+export const getTranslatedText = (projectId, bookList, projectName) => async dispatch => {
+    const apiData = {
+        projectId,
+        bookList
+    }
+    dispatch(setIsFetching(true))
+    try {
+        const data = await fetch(apiUrl + 'v1/downloaddraft', {
+            method: 'POST',
+            body: JSON.stringify(apiData),
+            headers: {
+                Authorization: 'bearer ' + accessToken
+            }
+        })
+        const myJson = await data.json()
+        if ("translatedUsfmText" in myJson) {
+            const usfmTexts = myJson.translatedUsfmText
+            Object.keys(usfmTexts).map(book => {
+                let blob = new Blob([usfmTexts[book]], { type: "text/plain;charset=utf-8" });
+                FileSaver.saveAs(blob, book + "_" + projectName.split("|")[0] + "_.usfm");
+            })
+        } else {
+
+            swal({
+                title: 'Download drafts',
+                text: 'Unable to download drafts ',
+                icon: 'error'
+            });
+        }
+        dispatch(setIsFetching(false))
+    }
+    catch (ex) {
+        swal({
+            title: 'Fetch users projects',
+            text: 'Unable to fetch users projects, check your internet connection or contact admin',
+            icon: 'error'
+        });
     }
 }
 
@@ -179,3 +224,8 @@ export const setConcordance = concordance => ({
     type: SET_CONCORDANCE,
     concordance
 })
+
+export const setReference = reference => ({
+    type: SET_REFERENCE_NUMBER,
+    reference
+});

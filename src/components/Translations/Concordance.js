@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import apiUrl from '../GlobalUrl';
 import { saveReference } from '../../store/actions/sourceActions';
 import { connect } from 'react-redux';
-import { fetchConcordances } from '../../store/actions/projectActions';
+import { fetchConcordances, setReference } from '../../store/actions/projectActions';
 
 const styles = theme => ({
     root: {
@@ -63,23 +63,27 @@ class Concordance extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps){
-        const { selectedToken, selectedProject, selectedBook, dispatch } = nextProps
-        if(selectedToken){
+    componentDidUpdate(prevProps){
+        const { selectedToken, selectedProject, selectedBook, dispatch } = this.props
+        if(prevProps.selectedToken !== selectedToken){
             dispatch(fetchConcordances(selectedToken, selectedProject.sourceId, selectedBook));
             // this.getVerseText(token, project.sourceId, book )
         }
     }
 
+    // componentWillReceiveProps(nextProps){
+        
+    // }
+
     storeBCV = (book, chapter, verse) => {
-        this.props.saveReference({
+        this.props.dispatch(setReference({
             reference: book + this.lengthCheck(chapter) + this.lengthCheck(verse),
             verseNum:{
                 book:book,
                 chapter: this.lengthCheck(chapter),
                 verse: this.lengthCheck(verse)
             }
-        })
+        }))
     }
 
     displayConcordance(value, token) {

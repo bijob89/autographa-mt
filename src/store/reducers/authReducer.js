@@ -1,4 +1,4 @@
-import { SET_CURRENT_USER } from '../actions/actionConstants';
+import { SET_CURRENT_USER, CLEAR_STATE } from '../actions/actionConstants';
 
 const initState = {
     accessToken: null,
@@ -20,6 +20,10 @@ const authReducer = (state=initState, action) => {
             return {
                 ...state,
                 current_user: action.current_user
+            }
+        case CLEAR_STATE:
+            return {
+                ...initState
             }
         default:
             return state

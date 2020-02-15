@@ -246,7 +246,7 @@ class DownloadDraft extends Component {
         return (
 
             <Grid item xs={12} container>
-            <Header />
+            {/* <Header /> */}
             <BooksDownloadable />
                 <Grid 
                     container
