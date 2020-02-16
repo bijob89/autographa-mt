@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -113,20 +113,21 @@ class DrawerPane extends Component {
         const { classes, current_user } = this.props
         const { expanded } = this.state;
         return (
-            <Drawer
-                className={classes.drawer}
-                variant="permanent"
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
-            >
-                <div className={classes.toolbar} />
-
+            // <Drawer
+            //     className={classes.drawer}
+            //     variant="permanent"
+            //     classes={{
+            //         paper: classes.drawerPaper,
+            //     }}
+            // >
+                // <div className={classes.toolbar} />
+                <Fragment>
+                    
                 {
                     menus.map(menu => {
                         if(menu.roles.includes(current_user.role)){
                             return (
-                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }} key={menu.key} expanded={expanded} onClick={() => this.setState({expanded: !expanded})}>
+                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white', margin: 0 }} key={menu.key} expanded={expanded} onClick={() => this.setState({expanded: !expanded})}>
                                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }} />}>
                                         <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
                                     </ExpansionPanelSummary>
@@ -159,45 +160,9 @@ class DrawerPane extends Component {
                         
                     })
                 }
+                </Fragment>
 
-                {/* <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{color:'white'}} />}>
-                        <Typography color="inherit" className={classes.heading}>Dashboard</Typography>
-                    </ExpansionPanelSummary>
-                    <List>
-                        {['Statistics', 'My Projects', 'Chart'].map((text, index) => (
-                            <ListItem button key={text} className={classes.exp}
-                            onClick={(e) => this.checkWhat(text)}
-                            >
-                                <ListItemText disableTypography divider="true"
-                                    primary={<Typography variant="caption" style={{ color: '#FFFFFF' }}
-                                    
-                                    >{text}</Typography>}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </ExpansionPanel> */}
-                {/* <Divider /> */}
-                {/* <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white' }}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{color:'white'}} />}>
-                        <Typography color="inherit" className={classes.heading}>Manager</Typography>
-                    </ExpansionPanelSummary>
-                    <List>
-                        {drawerItems.map((text, index) => (
-                            <ListItem button key={text} className={classes.exp}
-                            onClick={() => this.handleDashboard(text)}
-                            >
-                                <ListItemText disableTypography divider="true"
-                                    primary={<Typography type="body2"  variant="caption" style={{ color: '#FFFFFF' }}
-                                    
-                                    >{text}</Typography>}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </ExpansionPanel> */}
-            </Drawer>
+                
         )
     }
 }

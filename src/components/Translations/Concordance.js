@@ -22,7 +22,7 @@ const styles = theme => ({
         padding: theme.spacing(),
         color: theme.palette.text.secondary,
         backgroundColor: '#fff',
-        height: 165,
+        height: '19vh',
         overflow: 'auto',
         textAlign: 'justify',
         lineHeight: '20px',

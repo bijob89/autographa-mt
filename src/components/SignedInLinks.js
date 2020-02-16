@@ -88,12 +88,13 @@ class SignedInLinks extends Component {
                 {
                     current_user.firstName ?  (
                         <div>
-                            <label color="inherit" style={{ padding: '5px' }}>Welcome, {current_user.firstName.charAt(0).toUpperCase() + current_user.firstName.slice(1)}</label>
+                            <label color="inherit" style={{ padding: '5px', color: 'white' }}>Welcome, {current_user.firstName.charAt(0).toUpperCase() + current_user.firstName.slice(1)}</label>
                         <IconButton
                             aria-owns={isMenuOpen ? 'material-appbar' : undefined}
                             aria-haspopup="true"
                             onClick={this.handleMenu}
-                            color="inherit"
+                            className={classes.link}
+                            // color="inherit"
                         >
                             <AccountCircle />
                         </IconButton>
@@ -101,7 +102,7 @@ class SignedInLinks extends Component {
                     </div>
                     ) 
                     : (
-                    <div>
+                    <div style={{paddingTop: '20px', paddingRight: '10px'}}>
                     <Link to="/signin" className={classes.link}>Sign In</Link>
                     <Link to="/signup" className={classes.link}>Sign Up</Link>
                     </div>)

@@ -3,6 +3,7 @@ import jwt_decode from 'jwt-decode';
 // import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
+import Grid from '@material-ui/core/Grid';
 import Header from '../Header';
 import { Component } from 'react';
 import Drawer from './Drawer';
@@ -59,15 +60,16 @@ const styles = theme => ({
         zIndex: theme.zIndex.drawer + 1,
     },
     drawer: {
-        width: drawerWidth,
+        // width: drawerWidth,
         flexShrink: 0,
     },
     drawerPaper: {
-        width: drawerWidth,
+        // width: '100%',
+        zIndex: -1,
         backgroundColor: '#262f3d'
     },
     content: {
-        flexGrow: 1,
+        // flexGrow: 1,
         minHeight: '100vh'
         // padding: theme.spacing(1),
     },
@@ -86,14 +88,21 @@ class Wrapper extends Component {
         console.log('Wrapper', this.props);
         return (
             <BrowserRouter>
-            <div className={classes.root}>
+            {/* <div className={classes.root}> */}
+                <Grid container>
                 {/* <CssBaseline /> */}
-                <AppBar position="fixed" className={classes.appBar}>
+                {/* <AppBar position="fixed" className={classes.appBar}> */}
+                    {/* <Grid item xs={12}> */}
+                    {/* <div></div> */}
                     <Header />
-                </AppBar>
-                <Drawer classes={classes}  />
-                <main className={classes.content}>
-                    <div className={classes.toolbar} />
+                    {/* </Grid> */}
+                {/* </AppBar> */}
+                <Grid item xs={2} style={{top: '0', paddingTop: '80px', position: 'fixed', width: '100%', height: '100%', backgroundColor: 'black'}}>
+                    <Drawer classes={classes}  />
+                </Grid>
+                <Grid item xs={10} style={{top: '13%', position: 'absolute', width: '100%', right: 0}}>
+                {/* <main className={classes.content}> */}
+                    {/* <div className={classes.toolbar} /> */}
                     
                         <Switch>
                             {/* <Route path="/signin" component={() => <LoginPage />} /> */}
@@ -113,8 +122,10 @@ class Wrapper extends Component {
                             <PrivateRoute exact path="/app/translations/download" component={() => <DownloadDraft />} />
                         </Switch>
                     {/* </BrowserRouter> */}
-                </main>
-            </div>
+                {/* </main> */}
+                </Grid>
+            </Grid>
+            {/* </div> */}
             </BrowserRouter>
         );
     }

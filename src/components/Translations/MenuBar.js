@@ -15,8 +15,8 @@ const styles = theme => ({
     },
     formControl: {
         margin: theme.spacing(1),
-        // minWidth: 120,
-        width: '100%'
+        minWidth: 120,
+        // width: '100%'
       },
     selectMenu: {
         width: '140px',

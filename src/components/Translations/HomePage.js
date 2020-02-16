@@ -20,6 +20,7 @@ import { withRouter } from 'react-router-dom';
 const styles = theme => ({
     root: {
         backgroundColor: '#ededf4',
+        paddingTop: '8px'
     }
 });
 
@@ -135,7 +136,7 @@ class HomePage extends Component {
         } = this.state
         console.log('homepage', this.props)
         return (
-            <Grid container spacing={2} className={classes.root}>
+            <Grid container  className={classes.root}>
                 {/* <Grid container> */}
                 { isFetching && <CircleLoader />}
                 <Grid item xs={3}>

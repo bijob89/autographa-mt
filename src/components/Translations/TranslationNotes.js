@@ -12,7 +12,7 @@ const styles = theme => ({
       tokenList: {
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        height: 360,
+        height: '30vh',
         overflowX: 'hidden',
         overflowY: 'auto',
         backgroundColor: '#fff',
