@@ -93,7 +93,7 @@ class UpdateTokens extends Component {
             projectId: selectedProject.projectId,
             token: selectedToken,
             translation: '',
-            senses: sense
+            senses: [sense]
         }
         dispatch(updateTransaltion(apiData, this.clearTransaltionState))
     }

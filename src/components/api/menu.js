@@ -38,7 +38,7 @@ export const menus = [
         child: [
             {
                 name: 'Sources',
-                link: '/translations/sources',
+                link: 'app/translations/sources',
                 roles: ['m', 'ad', 'sa'],
                 key: 'sources'
             },

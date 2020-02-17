@@ -120,6 +120,7 @@ class Wrapper extends Component {
                             <PrivateRoute path="/app/translations/projects/:id" component={() => <HomePage />} />
                             <PrivateRoute exact path="/app/translations/projects" component={() => <MyProjects />} />
                             <PrivateRoute exact path="/app/translations/download" component={() => <DownloadDraft />} />
+                            <PrivateRoute exact path="/app/translations/sources" component={() => <ViewSources />} />
                         </Switch>
                     {/* </BrowserRouter> */}
                 {/* </main> */}

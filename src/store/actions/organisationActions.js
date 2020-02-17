@@ -56,7 +56,7 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
     }
     catch(e) {
         swal({
-            title: 'Organisations',
+            title: 'Organisations status',
             text: 'Unable to update organisations, check your internet connection or contact admin',
             icon: 'error'
         })
@@ -92,8 +92,8 @@ export const createOrganisation = (apiData) => async dispatch =>{
     }
     catch(e) {
         swal({
-            title: 'Organisations',
-            text: 'Unable to update organisations, check your internet connection or contact admin',
+            title: 'Create Organisations',
+            text: 'Unable to create organisations, check your internet connection or contact admin',
             icon: 'error'
         })
     }

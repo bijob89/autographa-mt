@@ -32,7 +32,7 @@ if (role === 'sa') {
 console.log('menus', menus)
 class DrawerPane extends Component {
     state = {
-        expanded: true
+        expanded: 'dashboard'
     }
 
     // async getUsers(){
@@ -127,8 +127,8 @@ class DrawerPane extends Component {
                     menus.map(menu => {
                         if(menu.roles.includes(current_user.role)){
                             return (
-                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white', margin: 0 }} key={menu.key} expanded={expanded} onClick={() => this.setState({expanded: !expanded})}>
-                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }} />}>
+                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white', margin: 0 }} key={menu.key} expanded={expanded === menu.key}>
+                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }}  onClick={() => this.setState({expanded: expanded === menu.key ? false : menu.key})}/>}>
                                         <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
                                     </ExpansionPanelSummary>
                                     <List>

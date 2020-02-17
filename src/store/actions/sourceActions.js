@@ -1,8 +1,11 @@
-import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES } from './actionConstants';
+import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES, SET_SOURCE_BOOKS } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
 
+const accessToken = localStorage.getItem('accessToken');
+
 export const fetchBibleLanguages = () => async dispatch => {
+    dispatch(setIsFetching(true))
     try{
         
         // const data = await fetch(apiUrl + 'v1/bibles/languages', {
@@ -30,6 +33,7 @@ export const fetchBibleLanguages = () => async dispatch => {
         })
 
     }
+    dispatch(setIsFetching(false))
 }
 
 export const fetchAllLanguages = () => async dispatch => {
@@ -49,6 +53,57 @@ export const fetchAllLanguages = () => async dispatch => {
 
     }
 }
+
+export const fetchSourceBooks = (sourceId) => async dispatch => {
+    dispatch(setIsFetching(true))
+    try {
+        // const { sourceId } = this.state
+        console.log(sourceId)
+        const data = await fetch(apiUrl + 'v1/sources/books/' + sourceId, {
+            method: 'GET',
+            headers: {
+                Authorization: 'bearer ' + accessToken
+            }
+        })
+        const response = await data.json()
+        console.log(response)
+        if ("success" in response) {
+            swal({
+                title: 'Fetch books',
+                text: response.message,
+                icon: 'error'
+            })
+
+            // this.props.displaySnackBar({
+            //     snackBarMessage: response.message,
+            //     snackBarOpen: true,
+            //     snackBarVariant: "error"
+            // })
+        } else {
+
+            // this.setState({
+            //     listBooks: true,
+            //     availableBooksData: response,
+            // })
+            dispatch(setSourceBooks(response))
+        }
+    }
+    catch (ex) {
+        
+        swal({
+            title: 'Fetch books',
+            text: 'Unable to fetch books data, check your internet connection or contact admin',
+            icon: 'error'
+        })
+
+    }
+    dispatch(setIsFetching(false))
+}
+
+export const setSourceBooks = books => ({
+    type: SET_SOURCE_BOOKS,
+    books
+})
 
 export const setBibleLanguages = bibleLanguages => ({
     type: SET_BIBLE_LANGUAGES,
