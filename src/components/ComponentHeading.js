@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { Typography } from '@material-ui/core';
+import React, { Component, Fragment } from 'react';
+import { Typography, Divider } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        backgroundColor: '#294c60',
+        backgroundColor: '#f1f1f1',
         // backgroundColor: '#ededf4',
-        color: 'white',
+        // color: 'white',
         padding: '6px 0px',
         fontSize: '18px'
       },
@@ -25,9 +25,12 @@ class ComponentHeading extends Component {
             styleColor = null
         }
         return (
+            <Fragment>
             <Typography  align="center" className={classes.root}>
                 {text}
             </Typography>
+            <Divider />
+            </Fragment>
         )
     }
 }

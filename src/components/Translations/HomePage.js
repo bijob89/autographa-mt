@@ -136,7 +136,7 @@ class HomePage extends Component {
         } = this.state
         console.log('homepage', this.props)
         return (
-            <Grid container  className={classes.root}>
+            <Grid container spacing={2} className={classes.root}>
                 {/* <Grid container> */}
                 { isFetching && <CircleLoader />}
                 <Grid item xs={3}>

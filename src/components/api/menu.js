@@ -1,7 +1,7 @@
 export const menus = [
     {
         name: 'Dashboard',
-        roles: ['member', 'ad', 'sa'],
+        roles: ['m', 'ad', 'sa'],
         key:'dashboard',
         child: [
             {
