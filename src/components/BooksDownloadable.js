@@ -13,6 +13,7 @@ import ComponentHeading from './ComponentHeading';
 import apiUrl from './GlobalUrl';
 import PopUpMessages from './PopUpMessages';
 import { getTranslatedText } from '../store/actions/projectActions';
+import CircleLoader from './loaders/CircleLoader';
 var FileSaver = require('file-saver');
 
 var accessToken = localStorage.getItem('accessToken')
@@ -142,14 +143,18 @@ class BooksDownloadable extends Component {
     }
 
     render() {
-        const { updateState, booksPane, classes, project } = this.props
+        const { updateState, booksPane, classes, project, isFetching } = this.props
         return (
             <Dialog
                 open={booksPane}
                 onClose={this.handleClose}
             // value={this.state.value}
             >
-                <PopUpMessages />
+                {/* <PopUpMessages /> */}
+                {
+                    isFetching &&
+                    <CircleLoader />
+                }
                 <ComponentHeading data={{ classes: classes, text: "Select Books to Download", styleColor: '#2a2a2fbd' }} />
                 {/* <DialogTitle id="form-dialog-title">Select Books to Download</DialogTitle> */}
                 <DialogContent>

@@ -23,24 +23,24 @@ const accessToken = localStorage.getItem('accessToken')
 
 const getMuiTheme = () => createMuiTheme({
     overrides: {
-      MUIDataTable: {
-        root: {
+        MUIDataTable: {
+            root: {
+            },
+            paper: {
+                boxShadow: "none",
+            }
         },
-        paper: {
-          boxShadow: "none",
+        MUIDataTableBodyRow: {
+            root: {
+                '&:nth-child(odd)': {
+                    backgroundColor: '#eaeaea'
+                }
+            }
+        },
+        MUIDataTableBodyCell: {
         }
-      },
-      MUIDataTableBodyRow: {
-        root: {
-          '&:nth-child(odd)': { 
-            backgroundColor: '#eaeaea'
-          }
-        }
-      },
-      MUIDataTableBodyCell: {
-      }
     }
-  })
+})
 
 const styles = theme => ({
     root: {
@@ -50,11 +50,11 @@ const styles = theme => ({
         // minHeight: '100%'
     },
     cursorPointer: {
-      cursor: 'pointer',
-      backgroundColor: '#fff',
-      '&:hover': {
-          background: '#ededf4',
-      },
+        cursor: 'pointer',
+        backgroundColor: '#fff',
+        '&:hover': {
+            background: '#ededf4',
+        },
     },
     cardHover: {
         backgroundColor: '#100f0ffa',
@@ -76,7 +76,7 @@ class ListProjects extends Component {
         columns: [
             {
                 name: 'id',
-                options: {    
+                options: {
                     display: false,
                     filter: false
                 }
@@ -108,60 +108,64 @@ class ListProjects extends Component {
         ]
     }
 
-    componentDidMount(){
+    componentDidMount() {
         const { dispatch } = this.props;
         dispatch(fetchProjects());
     }
 
     handleClose = () => {
-        this.setState({open: false})
+        this.setState({ open: false })
     }
 
     render() {
-        const { classes, projects, isFetching } = this.props;
+        const { classes, projects, isFetching, current_user } = this.props;
         const { columns, open } = this.state;
         const data = projects.map(project => {
             return [
-                project.projectId, 
-                project.projectName.split('|')[0], 
-                project.projectName.split('|')[1], 
-                project.organisationName, 
+                project.projectId,
+                project.projectName.split('|')[0],
+                project.projectName.split('|')[1],
+                project.organisationName,
                 project.version.name
             ]
         });
         const options = {
             selectableRows: false,
-            onRowClick: rowData => this.setState({redirect: rowData[0]})
+            onRowClick: rowData => this.setState({ redirect: rowData[0] })
         };
         console.log('projects', this.props)
         const { redirect } = this.state;
-        if(redirect) {
+        if (redirect) {
             return <Redirect to={`/app/projects/${redirect}`} />
         }
         return (
             <div className={classes.root}>
                 {/* <PopUpMessages /> */}
-                { isFetching && <CircleLoader />}
+                {isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
-                <MUIDataTable 
-                    title={"Projects List"} 
-                    data={data} 
-                    columns={columns} 
-                    options={options} 
-                />
+                    <MUIDataTable
+                        title={"Projects List"}
+                        data={data}
+                        columns={columns}
+                        options={options}
+                    />
                 </MuiThemeProvider>
                 <CreateProject open={open} close={this.handleClose} />
-                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
-                    <AddIcon />
-                </Fab>
+                {
+                    current_user.role !== 'm' &&
+                    <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({ open: true })}>
+                        <AddIcon />
+                    </Fab>
+                }
             </div>
         )
-    } 
+    }
 }
 
 const mapStateToProps = (state) => ({
     projects: state.project.projects,
-    isFetching: state.project.isFetching
+    isFetching: state.project.isFetching,
+    current_user: state.auth.current_user
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -173,4 +177,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default compose(
     withStyles(styles),
     connect(mapStateToProps, mapDispatchToProps)
- )(withRouter(ListProjects))
+)(withRouter(ListProjects))

@@ -37,24 +37,24 @@ import moment from 'moment';
 
 const getMuiTheme = () => createMuiTheme({
     overrides: {
-      MUIDataTable: {
-        root: {
+        MUIDataTable: {
+            root: {
+            },
+            paper: {
+                boxShadow: "none",
+            }
         },
-        paper: {
-          boxShadow: "none",
+        MUIDataTableBodyRow: {
+            root: {
+                '&:nth-child(odd)': {
+                    backgroundColor: '#eaeaea'
+                }
+            }
+        },
+        MUIDataTableBodyCell: {
         }
-      },
-      MUIDataTableBodyRow: {
-        root: {
-          '&:nth-child(odd)': { 
-            backgroundColor: '#eaeaea'
-          }
-        }
-      },
-      MUIDataTableBodyCell: {
-      }
     }
-  })
+})
 
 const styles = theme => ({
     root: {
@@ -77,8 +77,8 @@ const styles = theme => ({
     },
     fab: {
         position: 'fixed',
-        bottom: '16px',
-        right: '16px',
+        bottom: '20px',
+        right: '20px',
     }
 });
 
@@ -90,11 +90,12 @@ class ViewSources extends Component {
         decoded: {},
         accessToken: '',
         availableBooksData: [],
+        createSourceDialog: false,
         listBooks: false,
         columns: [
             {
                 name: 'id',
-                options: {    
+                options: {
                     display: false,
                     filter: false
                 }
@@ -132,7 +133,7 @@ class ViewSources extends Component {
                     filter: true
                 }
             },
-            
+
             {
                 name: 'Language code',
                 options: {
@@ -161,14 +162,14 @@ class ViewSources extends Component {
         //     this.setState({ decoded: jwt_decode(accessToken), accessToken })
         // }
         dispatch(fetchBibleLanguages())
-        if (current_user.role !== 'm'){
-            let {columns} = this.state;
+        if (current_user.role !== 'm') {
+            let { columns } = this.state;
             columns = [...columns, {
                 name: 'Books',
                 options: {
                     filter: true,
                     customBodyRender: (value) => {
-                        return <Button onClick={() => this.setState({listBooks: true}, this.handleBookSelect(value))}>View</Button>
+                        return <Button onClick={() => this.setState({ listBooks: true }, this.handleBookSelect(value))}>View</Button>
                     }
                 }
             }, {
@@ -176,16 +177,21 @@ class ViewSources extends Component {
                 options: {
                     filter: true,
                     customBodyRender: (value) => {
-                        return <Button size="small" variant="contained" onClick={() => this.setState({dialogOpen: true})}>Upload</Button>
+                        return <Button size="small" variant="contained" onClick={() => this.setState({ dialogOpen: true })}>Upload</Button>
                     }
                 }
 
             }]
-            this.setState({columns})
+            this.setState({ columns })
         }
     }
 
-    
+    handleClose = (value, status) => {
+        this.setState({
+            [value]: status
+        })
+    }
+
     displayBooks = () => {
         const { sourceBooks } = this.props
         return sourceBooks.map(book => {
@@ -215,8 +221,8 @@ class ViewSources extends Component {
     render() {
         // const { classes } = this.props
         console.log('view sources', this.props)
-        const { classes, bibleLanguages , isFetching } = this.props;
-        const { columns, open } = this.state;
+        const { classes, bibleLanguages, isFetching, current_user } = this.props;
+        const { columns, open, createSourceDialog } = this.state;
         var data = []
         bibleLanguages.map(bible => {
             bible["languageVersions"].map(version => {
@@ -232,13 +238,13 @@ class ViewSources extends Component {
                     version.sourceId,
                 ])
             })
-            
+
             // [
-                // project.projectId, 
-                // project.projectName.split('|')[0], 
-                // project.projectName.split('|')[1], 
-                // project.organisationName, 
-                // project.version.name
+            // project.projectId, 
+            // project.projectName.split('|')[0], 
+            // project.projectName.split('|')[1], 
+            // project.organisationName, 
+            // project.version.name
             // ]
         });
         console.log('data', data)
@@ -247,37 +253,42 @@ class ViewSources extends Component {
             // onRowClick: rowData => this.setState({redirect: rowData[0]})
         };
         return (
-            
+
             <div className={classes.root}>
                 {/* <PopUpMessages /> */}
-                { isFetching && <CircleLoader />}
+                {isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
-                <MUIDataTable 
-                    title={"Sources List"} 
-                    data={data} 
-                    columns={columns} 
-                    options={options} 
-                />
+                    <MUIDataTable
+                        title={"Sources List"}
+                        data={data}
+                        columns={columns}
+                        options={options}
+                    />
                 </MuiThemeProvider>
                 {/* <CreateProject open={open} close={this.handleClose} /> */}
-                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
-                    <AddIcon />
-                </Fab>
+                <CreateSources open={createSourceDialog} close={this.handleClose} isFetching={isFetching} />
+                {
+                    current_user.role !== 'm' &&
+                    <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({ createSourceDialog: true })}>
+                        <AddIcon />
+                    </Fab>
+                }
                 <Dialog
-                            open={this.state.listBooks}
-                        >
-                            <DialogContent>
-                                <Grid container item className={this.props.classes.bookCard}>
-                                    {this.displayBooks()}
-                                </Grid>
+                    open={this.state.listBooks}
+                >
+                    {isFetching && <CircleLoader />}
+                    <DialogContent>
+                        <Grid container item className={this.props.classes.bookCard}>
+                            {this.displayBooks()}
+                        </Grid>
 
 
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={this.closeBookListing} variant="contained" color="secondary">Close</Button>
-                            </DialogActions>
-                        </Dialog>
-                        <UploadTexts sourceId={this.state.sourceId} dialogOpen={this.state.dialogOpen} close={this.closeDialog} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.closeBookListing} variant="contained" color="secondary">Close</Button>
+                    </DialogActions>
+                </Dialog>
+                <UploadTexts sourceId={this.state.sourceId} dialogOpen={this.state.dialogOpen} close={this.closeDialog} />
             </div>
             // <Grid item xs={12} md={12} container justify="center" className={classes.root}>
             //     <Grid item>
@@ -352,7 +363,7 @@ class ViewSources extends Component {
             //                     ))}
             //                 </TableBody>
             //             </Table>
-                        
+
             //         </Paper>
             //     </Grid>
             // </Grid>

@@ -160,7 +160,7 @@ class UploadSource extends Component {
     }
 
     render() {
-        const { classes } = this.props
+        const { classes, open, handleClose } = this.props
 
         var languageData = [];
         if (this.state.languageDetails != null) {
@@ -175,7 +175,7 @@ class UploadSource extends Component {
 
         return (
             <Dialog
-                open={this.props.uploadPane}
+                open={open}
                 aria-labelledby="form-dialog-title"
             >
                 <PopUpMessages />
@@ -279,7 +279,7 @@ class UploadSource extends Component {
                             variant="contained"
                             size="small"
                             color="secondary"
-                            onClick={() => this.props.uploadDialog({ uploadPane: false })}
+                            onClick={() => handleClose('createSourceDialog', false)}
                         >Close</Button>
                         <Button size="small" variant="contained" color="primary" onClick={this.handleSubmit}>Create Source</Button>
                     </DialogActions>

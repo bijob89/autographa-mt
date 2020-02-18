@@ -188,7 +188,7 @@ class MyProjects extends Component {
             <div className={classes.root}>
                 { isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
-                    <BooksDownloadable updateState={this.updateState} project={project} booksPane={booksPane} />
+                    <BooksDownloadable isFetching={isFetching} updateState={this.updateState} project={project} booksPane={booksPane} />
                 <MUIDataTable 
                     title={"My Projects"} 
                     data={data} 

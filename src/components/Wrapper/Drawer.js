@@ -32,7 +32,7 @@ if (role === 'sa') {
 console.log('menus', menus)
 class DrawerPane extends Component {
     state = {
-        expanded: 'dashboard'
+        expanded: 'translations'
     }
 
     // async getUsers(){
