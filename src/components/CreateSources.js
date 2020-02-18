@@ -18,7 +18,7 @@ import ComponentHeading from './ComponentHeading';
 import apiUrl from './GlobalUrl';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux'
-import { displaySnackBar } from '../store/actions/sourceActions'
+import { displaySnackBar, createSource } from '../store/actions/sourceActions'
 import PopUpMessages from './PopUpMessages';
 import { uploadDialog } from '../store/actions/dialogActions';
 
@@ -123,30 +123,11 @@ class UploadSource extends Component {
         this.setState({ contentid: value[0].contentId, contentType: e.target.value });
     }
 
-    async uploadVersionDetails(apiData) {
-        try {
-            const postVersions = await fetch(apiUrl + 'v1/sources/bibles', {
-                method: 'POST',
-                body: JSON.stringify(apiData)
-            })
-            const myJson = await postVersions.json()
-            this.props.displaySnackBar({
-                snackBarMessage: myJson.message,
-                snackBarOpen: true,
-                snackBarVariant: (myJson.success) ? "success" : "error"
-            })
-        }
-        catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "Upload Process Failed",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-        }
-    }
+    
 
 
     handleSubmit = e => {
+        const { dispatch, close } = this.props;
         var apiData = {
             'languageCode': this.state.languageCode,
             'contentType': this.state.contentType,
@@ -157,10 +138,12 @@ class UploadSource extends Component {
             'license': this.state.license,
         }
         this.uploadVersionDetails(apiData)
+        dispatch(createSource(apiData, close))
+
     }
 
     render() {
-        const { classes, open, handleClose } = this.props
+        const { classes, open, close } = this.props
 
         var languageData = [];
         if (this.state.languageDetails != null) {
@@ -178,7 +161,7 @@ class UploadSource extends Component {
                 open={open}
                 aria-labelledby="form-dialog-title"
             >
-                <PopUpMessages />
+                {/* <PopUpMessages /> */}
                 <ComponentHeading data={{ classes, text: "Create Source", styleColor: '#2a2a2fbd' }} />
                 {/* <form className={classes.form} onSubmit={this.handleSubmit}> */}
                     <DialogTitle id="form-dialog-title"> </DialogTitle>
@@ -187,6 +170,43 @@ class UploadSource extends Component {
                             Enter details to create source
                             </DialogContentText>
                         <Grid container spacing={1} item xs={12}>
+                        <Grid item xs={6}>
+                                    <InputLabel htmlFor="select-revision">Revision</InputLabel>
+                                <FormControl variant="outlined" className={classes.formControl}>
+                                    <Select
+                                    // native
+                                        value={this.state.revision}
+                                        // variant="outlined"
+                                        onChange={(e) => this.setState({ revision: e.target.value })}
+                                        // variant="outlined"
+                                        // margin="dense"
+                                        inputProps={{
+                                            name: 'revision',
+                                            id: 'select-revision'
+                                        }}
+                                        // className={classes.selectMenu}
+                                    >
+                                        <MenuItem key={1} value={1}>1</MenuItem>
+                                        <MenuItem key={2} value={2}>2</MenuItem>
+                                        <MenuItem key={3} value={3}>3</MenuItem>
+                                        <MenuItem key={4} value={4}>4</MenuItem>
+                                        <MenuItem key={5} value={5}>5</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <InputLabel htmlFor="select-language">Language</InputLabel>
+                                <VirtualizedSelect className={classes.selectMenu}
+                                    options={languageData}
+                                    id="select-language"
+                                    onChange={(e) => this.setState({
+                                        languageName: e.label,
+                                        languageid: e.value,
+                                        languageCode: e.code
+                                    })}
+                                    value={this.state.languageid}
+                                />
+                            </Grid>
                             <Grid item xs={6}>
                                 <TextField
                                     onChange={(e) => this.setState({ versionContentDescription: e.target.value })}
@@ -235,43 +255,7 @@ class UploadSource extends Component {
                                     defaultValue="CC BY SA"
                                 />
                             </Grid>
-                            <Grid item xs={6}>
-                                    <InputLabel htmlFor="select-revision">Revision</InputLabel>
-                                <FormControl variant="outlined" className={classes.formControl}>
-                                    <Select
-                                    // native
-                                        value={this.state.revision}
-                                        // variant="outlined"
-                                        onChange={(e) => this.setState({ revision: e.target.value })}
-                                        // variant="outlined"
-                                        // margin="dense"
-                                        inputProps={{
-                                            name: 'revision',
-                                            id: 'select-revision'
-                                        }}
-                                        // className={classes.selectMenu}
-                                    >
-                                        <MenuItem key={1} value={1}>1</MenuItem>
-                                        <MenuItem key={2} value={2}>2</MenuItem>
-                                        <MenuItem key={3} value={3}>3</MenuItem>
-                                        <MenuItem key={4} value={4}>4</MenuItem>
-                                        <MenuItem key={5} value={5}>5</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={6}>
-                                <InputLabel htmlFor="select-language">Language</InputLabel>
-                                <VirtualizedSelect className={classes.selectMenu}
-                                    options={languageData}
-                                    id="select-language"
-                                    onChange={(e) => this.setState({
-                                        languageName: e.label,
-                                        languageid: e.value,
-                                        languageCode: e.code
-                                    })}
-                                    value={this.state.languageid}
-                                />
-                            </Grid>
+                            
                         </Grid>
                     </DialogContent>
                     <DialogActions>
@@ -279,7 +263,7 @@ class UploadSource extends Component {
                             variant="contained"
                             size="small"
                             color="secondary"
-                            onClick={() => handleClose('createSourceDialog', false)}
+                            onClick={() => close('createSourceDialog')}
                         >Close</Button>
                         <Button size="small" variant="contained" color="primary" onClick={this.handleSubmit}>Create Source</Button>
                     </DialogActions>
@@ -291,15 +275,13 @@ class UploadSource extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        uploadPane: state.dialog.uploadPane
+        uploadPane: state.dialog.uploadPane,
+        isFetching: state.sources.isFetching
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp)),
-        uploadDialog: (status) => dispatch(uploadDialog(status))
-    }
-}
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UploadSource));

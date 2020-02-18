@@ -26,9 +26,10 @@ const styles = theme => ({
 
 function Header({ classes }) {
     return (
-        // <Grid container>
+        
         <Fragment>
-            <Grid item xs={12} className={classes.root}>
+            {/* <Grid item xs={12} style={{position: 'fixed', width: '100%'}} className={classes.root}> */}
+            <Grid container style={{position: 'fixed', width: '100%'}} className={classes.root} >
             <Grid item xs={3} style={{paddingLeft: '10px'}}>
                 <Link to="/" className={classes.link}>
                     <Typography variant="h5" className={classes.grow}>

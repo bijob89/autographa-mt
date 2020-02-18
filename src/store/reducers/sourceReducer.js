@@ -1,9 +1,11 @@
-import { SET_BIBLE_LANGUAGES, SET_ALL_LANGUAGES, SET_IS_FETCHING, CLEAR_STATE, SET_SOURCE_BOOKS } from '../actions/actionConstants';
+import { SET_BIBLE_LANGUAGES, SET_ALL_LANGUAGES, SET_IS_FETCHING, CLEAR_STATE, SET_SOURCE_BOOKS, SET_UPLOAD_ERROR, COMPLETED_UPLOAD } from '../actions/actionConstants';
 const initState = {
     bibleLanguages: [],
     allLanguages: [],
     isFetching: false,
-    sourceBooks: []
+    sourceBooks: [],
+    uploadErrorBooks: [],
+    completedUpload: true
 }
 
 const sourceReducer = (state = initState, action) => {
@@ -18,10 +20,20 @@ const sourceReducer = (state = initState, action) => {
                 ...state,
                 allLanguages: action.allLanguages
             }
+        case SET_UPLOAD_ERROR:
+            return {
+                ...state,
+                uploadErrorBooks: action.book
+            }
         case SET_SOURCE_BOOKS:
             return {
                 ...state,
                 sourceBooks: action.books
+            }
+        case COMPLETED_UPLOAD:
+            return {
+                ...state,
+                completedUpload: action.status
             }
         case SET_IS_FETCHING:
             return {

@@ -12,10 +12,12 @@ import AddIcon from '@material-ui/icons/Add';
 import PopUpMessages from './PopUpMessages';
 import ComponentHeading from './ComponentHeading';
 import apiUrl from './GlobalUrl'
-import { displaySnackBar } from '../store/actions/sourceActions';
+import { displaySnackBar, uploadBibleTexts, completedUpload, setUploadError } from '../store/actions/sourceActions';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import swal from 'sweetalert';
+import CircleLoader from './loaders/CircleLoader';
 // import { displaySnackBar } from '../store/actions/sourceActions'
 var grammar = require('usfm-grammar')
 
@@ -36,49 +38,44 @@ class UploadTexts extends Component {
         text: ""
     }
 
-    async uploadVersionDetails(apiData) {
-        try {
-            const postVersions = await fetch(apiUrl + 'v1/bibles/upload', {
-                method: 'POST',
-                body: JSON.stringify(apiData)
-            })
-            const myJson = await postVersions.json()
-            // this.setState({ message: myJson.message })
-            // if (myJson.success) {
-            //     return true
-            // } else {
-            //     return false
+    componentDidUpdate(prevProps) {
+        if (prevProps.completedUpload !== this.props.completedUpload) {
+            const { completedUpload, uploadErrorBooks, dispatch } = this.props;
+            if (completedUpload) {
+                if (uploadErrorBooks.length > 0) {
+                    swal({
+                        title: 'Upload Bible',
+                        text: `${uploadErrorBooks.length} books failed to upload`,
+                        icon: 'warning'
+                    }).then(msg => dispatch(setUploadError([])))
+                } else {
+                    swal({
+                        title: 'Upload Bible',
+                        text: `All books uploaded successfully`,
+                        icon: 'success'
+                    }).then(msg => dispatch(setUploadError([])))
+                }
+            }
+        }
 
-            // }
-            this.props.displaySnackBar({
-                snackBarMessage: myJson.message,
-                snackBarOpen: true,
-                snackBarVariant: (myJson.success) ? "success" : "error"
-            })
-        }
-        catch (ex) {
-            // this.setState({ variant: "error", snackBarOpen: true, message: "Upload Process Failed", snackColor: '#d32f2f' })
-            this.props.displaySnackBar({
-                snackBarMessage: "Upload Process Failed",
-                snackBarOpen: true,
-                snackBarVariant: "error"
-            })
-        }
     }
 
     uploadFiles() {
         const { parsedUsfm, fileContent } = this.state
-        const { sourceId } = this.props
+        const { sourceId, dispatch } = this.props
         // let errorFiles = []
-        parsedUsfm.map((item, index) => {
+        dispatch(completedUpload(false));
+        parsedUsfm.map(async (item, index) => {
             // let bookName = item.metadata.id.book
             var apiData = {
                 'sourceId': sourceId,
                 'wholeUsfmText': fileContent[index],
                 'parsedUsfmText': item
             }
-            this.uploadVersionDetails(apiData)
+            await dispatch(uploadBibleTexts(apiData, parsedUsfm[0].metadata.id.book))
+            // this.uploadVersionDetails(apiData)
         })
+        dispatch(completedUpload(true));
         // if (uploadFail) {
         //     this.setState({ variant: "error", snackBarOpen: true, message: this.state.message, snackColor: '#d32f2f' })
         // }
@@ -91,7 +88,7 @@ class UploadTexts extends Component {
         fileContent.push(content)
         parsedUsfm.push(jsonOutput)
 
-        this.setState({ fileContent, parsedUsfm, disableUpload: false })
+        // this.setState({ fileContent, parsedUsfm, disableUpload: false, progress: false })
     };
 
     async handleFileChosen(file) {
@@ -103,22 +100,22 @@ class UploadTexts extends Component {
             var jsonOutput = grammar.parseUSFM(content)
             if (jsonOutput.ERROR) {
                 errorFiles.push(file.name)
-                this.props.displaySnackBar({
-                    snackBarMessage: jsonOutput.ERROR,
-                    snackBarOpen: true,
-                    snackBarVariant: "error"
-                })
+                // this.props.displaySnackBar({
+                //     snackBarMessage: jsonOutput.ERROR,
+                //     snackBarOpen: true,
+                //     snackBarVariant: "error"
+                // })
                 this.setState({ errorFiles })
             } else {
                 fileContent.push(content)
                 parsedUsfm.push(jsonOutput)
-                this.setState({ fileContent, parsedUsfm })
+                this.setState({ fileContent, parsedUsfm, progress: false })
             }
-            this.setState({ progress: false})
+            // this.setState({ progress: false})
         }
-        await this.setState({text: "Adding"})
+        // await this.setState({text: "Adding"})
         await fileReader.readAsText(file)
-        await this.setState({ text: "completed"})
+        // await this.setState({ text: "completed"})
     };
 
     addFiles = e => {
@@ -126,27 +123,29 @@ class UploadTexts extends Component {
         const filesObj = e.target.files
         const filesKeys = Object.keys(filesObj)
         this.setState({ fileContent: [], parsedUsfm: [], errorFiles: [], progress: true })
-        filesKeys.map(key => {
-            this.handleFileChosen(filesObj[key])
+        filesKeys.map(async key => {
+            await this.setState({ progress: true })
+            await this.handleFileChosen(filesObj[key])
         })
-        this.props.displaySnackBar({
-            snackBarMessage: "added files",
-            snackBarOpen: true,
-            snackBarVariant: "error"
-        })
+
+        // this.props.displaySnackBar({
+        //     snackBarMessage: "added files",
+        //     snackBarOpen: true,
+        //     snackBarVariant: "error"
+        // })
         // this.setState({ progress: false})
     }
-    componentWillReceiveProps(nextProps) {
-        const { sourceId } = this.state
-        const newSourceId = nextProps
-        if (sourceId !== newSourceId) {
-            this.setState({
-                fileContent: [],
-                parsedUsfm: [],
-                disableUpload: false
-            })
-        }
-    }
+    // componentWillReceiveProps(nextProps) {
+    //     const { sourceId } = this.state
+    //     const newSourceId = nextProps
+    //     if (sourceId !== newSourceId) {
+    //         this.setState({
+    //             fileContent: [],
+    //             parsedUsfm: [],
+    //             disableUpload: false
+    //         })
+    //     }
+    // }
 
     handleSubmit = e => {
         // e.preventDe  fault();
@@ -155,8 +154,8 @@ class UploadTexts extends Component {
 
 
     render() {
-        const { dialogOpen, close } = this.props
-        console.log(this.state.parsedUsfm)
+        const { dialogOpen, close, isFetching } = this.props
+        console.log('upload', this.props);
         return (
             <Dialog
                 open={dialogOpen}
@@ -164,6 +163,10 @@ class UploadTexts extends Component {
                 aria-labelledby="form-dialog-title"
             >
                 <PopUpMessages />
+                {
+                    isFetching &&
+                    <CircleLoader />
+                }
                 <ComponentHeading data={{ text: "Upload Sources", styleColor: '#2a2a2fbd' }} />
                 <DialogTitle id="form-dialog-title"> </DialogTitle>
                 <DialogContent>
@@ -197,7 +200,7 @@ class UploadTexts extends Component {
                             </label>
                         </Grid>
                         <Grid item xs={3}>
-                            <Button disabled={this.state.disableUpload} variant="contained" color="inherit" onClick={this.handleSubmit}>Upload</Button>
+                            <Button disabled={this.state.progress} variant="contained" color="inherit" onClick={this.handleSubmit}>Upload</Button>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -215,10 +218,14 @@ class UploadTexts extends Component {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapStateToProps = state => ({
+    isFetching: state.sources.isFetching,
+    uploadErrorBooks: state.sources.uploadErrorBooks,
+    completedUpload: state.sources.completedUpload
+})
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(UploadTexts))
+const mapDispatchToProps = (dispatch) => ({
+    dispatch
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UploadTexts))

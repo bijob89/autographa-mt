@@ -55,6 +55,7 @@ const styles = theme => ({
         '&:hover': {
             background: "#f00",
         },
+        paddingLeft: '40px'
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -94,13 +95,16 @@ class Wrapper extends Component {
                 {/* <AppBar position="fixed" className={classes.appBar}> */}
                     {/* <Grid item xs={12}> */}
                     {/* <div></div> */}
-                    <Header />
                     {/* </Grid> */}
                 {/* </AppBar> */}
-                <Grid item xs={2} style={{top: '0', paddingTop: '80px', position: 'fixed', width: '100%', height: '100%', backgroundColor: 'black'}}>
+                <Header />
+                <Grid item xs={2} style={{top: '0', position: 'fixed', paddingTop: '80px', width: '100%', height: '100%', backgroundColor: 'black'}}>
                     <Drawer classes={classes}  />
                 </Grid>
-                <Grid item xs={10} style={{top: '13%', position: 'absolute', width: '100%', right: 0}}>
+                {/* <Grid item xs={2}></Grid> */}
+                <Grid item xs={10} style={{  width: '100%', zIndex: -1, position:'absolute', top:'85px', right:0}}>
+                    
+                
                 {/* <main className={classes.content}> */}
                     {/* <div className={classes.toolbar} /> */}
                     

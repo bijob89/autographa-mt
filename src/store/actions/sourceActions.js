@@ -1,4 +1,4 @@
-import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES, SET_SOURCE_BOOKS } from './actionConstants';
+import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES, SET_SOURCE_BOOKS, SET_UPLOAD_ERROR, COMPLETED_UPLOAD } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
 
@@ -100,6 +100,95 @@ export const fetchSourceBooks = (sourceId) => async dispatch => {
     dispatch(setIsFetching(false))
 }
 
+export const  createSource = (apiData, close) => async dispatch => {
+    dispatch(setIsFetching(true))
+    try {
+        const postVersions = await fetch(apiUrl + 'v1/sources/bibles', {
+            method: 'POST',
+            body: JSON.stringify(apiData)
+        })
+        const myJson = await postVersions.json()
+        close('createSourceDialog')
+        // this.props.displaySnackBar({
+        //     snackBarMessage: 
+        //     snackBarOpen: true,
+        //     snackBarVariant: 
+        // })
+        
+        swal({
+            title: 'Create Source',
+            text: myJson.message,
+            icon: (myJson.success) ? "success" : "error"
+        })
+        if(myJson.success){
+            dispatch(fetchBibleLanguages())
+        }
+    }
+    catch (ex) {
+        swal({
+            title: 'Create Source',
+            text: 'Unable to create source, check your internet connection or contact admin',
+            icon: 'error'
+        })
+        // this.props.displaySnackBar({
+        //     snackBarMessage: "Upload Process Failed",
+        //     snackBarOpen: true,
+        //     snackBarVariant: "error"
+        // })
+    }
+    dispatch(setIsFetching(false))
+}
+
+export const uploadBibleTexts = (apiData, book) => async dispatch => {
+    dispatch(setIsFetching(true))
+    try {
+        const postVersions = await fetch(apiUrl + 'v1/bibles/upload', {
+            method: 'POST',
+            body: JSON.stringify(apiData)
+        })
+        const myJson = await postVersions.json()
+        // this.setState({ message: myJson.message })
+        // if (myJson.success) {
+        //     return true
+        // } else {
+        //     return false
+
+        // }
+        if (!myJson.success) {
+            dispatch(setUploadError(book))
+        }
+        // this.props.displaySnackBar({
+        //     snackBarMessage: myJson.message,
+        //     snackBarOpen: true,
+        //     snackBarVariant: (myJson.success) ? "success" : "error"
+        // })
+    }
+    catch (ex) {
+        swal({
+            title: 'Upload Bible',
+            text: 'Unable to upload bible, check your internet connection or contact admin',
+            icon: 'error'
+        })
+        // this.setState({ variant: "error", snackBarOpen: true, message: "Upload Process Failed", snackColor: '#d32f2f' })
+        // this.props.displaySnackBar({
+        //     snackBarMessage: "Upload Process Failed",
+        //     snackBarOpen: true,
+        //     snackBarVariant: "error"
+        // })
+    }
+    dispatch(setIsFetching(false))
+}
+
+export const setUploadError = book => ({
+    type: SET_UPLOAD_ERROR,
+    book
+});
+
+export const completedUpload = (status) => ({
+    type: COMPLETED_UPLOAD,
+    status
+})
+
 export const setSourceBooks = books => ({
     type: SET_SOURCE_BOOKS,
     books
@@ -120,11 +209,11 @@ export const setIsFetching = status => ({
     status
 })
 
-export const createSource = (source) => {
-    return (dispatch, getState) => {
-        dispatch({ type: 'GET_SOURCES', source })
-    }
-};
+// export const createSource = (source) => {
+//     return (dispatch, getState) => {
+//         dispatch({ type: 'GET_SOURCES', source })
+//     }
+// };
 
 export const selectProject = (project) => {
     return (dispatch, getState) => {

@@ -177,7 +177,7 @@ class ViewSources extends Component {
                 options: {
                     filter: true,
                     customBodyRender: (value) => {
-                        return <Button size="small" variant="contained" onClick={() => this.setState({ dialogOpen: true })}>Upload</Button>
+                        return <Button size="small" variant="contained" onClick={() => this.setState({ dialogOpen: true, sourceId: value })}>Upload</Button>
                     }
                 }
 
@@ -186,9 +186,9 @@ class ViewSources extends Component {
         }
     }
 
-    handleClose = (value, status) => {
+    handleClose = (value) => {
         this.setState({
-            [value]: status
+            [value]: false
         })
     }
 
@@ -266,29 +266,38 @@ class ViewSources extends Component {
                     />
                 </MuiThemeProvider>
                 {/* <CreateProject open={open} close={this.handleClose} /> */}
-                <CreateSources open={createSourceDialog} close={this.handleClose} isFetching={isFetching} />
+                {
+                    createSourceDialog &&
+                    <CreateSources open={createSourceDialog} close={this.handleClose} isFetching={isFetching} />
+                }
                 {
                     current_user.role !== 'm' &&
                     <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({ createSourceDialog: true })}>
                         <AddIcon />
                     </Fab>
                 }
-                <Dialog
-                    open={this.state.listBooks}
-                >
-                    {isFetching && <CircleLoader />}
-                    <DialogContent>
-                        <Grid container item className={this.props.classes.bookCard}>
-                            {this.displayBooks()}
-                        </Grid>
+                {
+                    this.state.listBooks &&
+                    <Dialog
+                        open={this.state.listBooks}
+                    >
+                        {isFetching && <CircleLoader />}
+                        <DialogContent>
+                            <Grid container item className={this.props.classes.bookCard}>
+                                {this.displayBooks()}
+                            </Grid>
 
 
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.closeBookListing} variant="contained" color="secondary">Close</Button>
-                    </DialogActions>
-                </Dialog>
-                <UploadTexts sourceId={this.state.sourceId} dialogOpen={this.state.dialogOpen} close={this.closeDialog} />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={this.closeBookListing} variant="contained" color="secondary">Close</Button>
+                        </DialogActions>
+                    </Dialog>
+                }
+                {
+                    this.state.dialogOpen &&
+                    <UploadTexts sourceId={this.state.sourceId} dialogOpen={this.state.dialogOpen} close={this.closeDialog} />
+                }
             </div>
             // <Grid item xs={12} md={12} container justify="center" className={classes.root}>
             //     <Grid item>
@@ -373,7 +382,7 @@ class ViewSources extends Component {
 
 const mapStateToProps = state => {
     return {
-        isFetching: state.project.isFetching,
+        isFetching: state.sources.isFetching,
         bibleLanguages: state.sources.bibleLanguages,
         sourceBooks: state.sources.sourceBooks,
         current_user: state.auth.current_user
