@@ -12,7 +12,7 @@ import AddIcon from '@material-ui/icons/Add';
 import PopUpMessages from './PopUpMessages';
 import ComponentHeading from './ComponentHeading';
 import apiUrl from './GlobalUrl'
-import { displaySnackBar, uploadBibleTexts, completedUpload, setUploadError } from '../store/actions/sourceActions';
+import { displaySnackBar, uploadBibleTexts, setCompletedUpload, setUploadError } from '../store/actions/sourceActions';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -47,13 +47,19 @@ class UploadTexts extends Component {
                         title: 'Upload Bible',
                         text: `${uploadErrorBooks.length} books failed to upload`,
                         icon: 'warning'
-                    }).then(msg => dispatch(setUploadError([])))
+                    }).then(msg => {
+                        dispatch(setUploadError([]))
+                        this.props.close()
+                    })
                 } else {
                     swal({
                         title: 'Upload Bible',
                         text: `All books uploaded successfully`,
                         icon: 'success'
-                    }).then(msg => dispatch(setUploadError([])))
+                    }).then(msg => {
+                        dispatch(setUploadError([]))
+                        this.props.close()
+                    })
                 }
             }
         }
@@ -64,7 +70,7 @@ class UploadTexts extends Component {
         const { parsedUsfm, fileContent } = this.state
         const { sourceId, dispatch } = this.props
         // let errorFiles = []
-        dispatch(completedUpload(false));
+        dispatch(setCompletedUpload(false));
         parsedUsfm.map(async (item, index) => {
             // let bookName = item.metadata.id.book
             var apiData = {
@@ -75,7 +81,7 @@ class UploadTexts extends Component {
             await dispatch(uploadBibleTexts(apiData, parsedUsfm[0].metadata.id.book))
             // this.uploadVersionDetails(apiData)
         })
-        dispatch(completedUpload(true));
+        // dispatch(completedUpload(true));
         // if (uploadFail) {
         //     this.setState({ variant: "error", snackBarOpen: true, message: this.state.message, snackColor: '#d32f2f' })
         // }
@@ -194,7 +200,7 @@ class UploadTexts extends Component {
                                 onChange={this.addFiles}
                             />
                             <label htmlFor="raised-button-file">
-                                <Button variant="contained" color="secondary" component="span" >
+                                <Button disabled={this.state.progress} variant="contained" color="secondary" component="span" >
                                     <AddIcon /> add files
                                 </Button>
                             </label>

@@ -1,4 +1,4 @@
-import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES, SET_SOURCE_BOOKS, SET_UPLOAD_ERROR, COMPLETED_UPLOAD } from './actionConstants';
+import { SET_BIBLE_LANGUAGES, SET_IS_FETCHING, SET_ALL_LANGUAGES, SET_SOURCE_BOOKS, SET_UPLOAD_ERROR_BOOKS, COMPLETED_UPLOAD } from './actionConstants';
 import apiUrl from '../../components/GlobalUrl.js';
 import swal from 'sweetalert';
 
@@ -154,6 +154,7 @@ export const uploadBibleTexts = (apiData, book) => async dispatch => {
         //     return false
 
         // }
+        
         if (!myJson.success) {
             dispatch(setUploadError(book))
         }
@@ -176,15 +177,16 @@ export const uploadBibleTexts = (apiData, book) => async dispatch => {
         //     snackBarVariant: "error"
         // })
     }
+    dispatch(setCompletedUpload(true))
     dispatch(setIsFetching(false))
 }
 
 export const setUploadError = book => ({
-    type: SET_UPLOAD_ERROR,
+    type: SET_UPLOAD_ERROR_BOOKS,
     book
 });
 
-export const completedUpload = (status) => ({
+export const setCompletedUpload = (status) => ({
     type: COMPLETED_UPLOAD,
     status
 })

@@ -19,8 +19,10 @@ import { withRouter } from 'react-router-dom';
 
 const styles = theme => ({
     root: {
-        backgroundColor: '#ededf4',
-        paddingTop: '8px'
+        // backgroundColor: '#ededf4',
+        paddingTop: '8px',
+        margin: 0,
+        width: '100%'
     }
 });
 
@@ -139,7 +141,7 @@ class HomePage extends Component {
             <Grid container spacing={2} className={classes.root}>
                 {/* <Grid container> */}
                 { isFetching && <CircleLoader />}
-                <Grid item xs={3}>
+                <Grid item xs={3} style={{minHeight: '480px'}}>
                     <Grid item xs={12}>
                         <MenuBar
                             updateState={this.updateState}
@@ -186,17 +188,17 @@ class HomePage extends Component {
                     </Grid> */}
                 {/* </Grid> */}
                 {/* <Grid container item xs={12}> */}
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}> */}
                         <TokenList />
-                    </Grid>
+                    {/* </Grid> */}
                     </Grid>
                     <Grid item xs={4}>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}> */}
                         <UpdateTokens />
-                    </Grid>
-                    <Grid item xs={12} >
+                    {/* </Grid> */}
+                    {/* <Grid item xs={12} > */}
                         <TranslationsWords />
-                    </Grid>
+                    {/* </Grid> */}
                     </Grid>
 
                     <Grid item xs={5}>

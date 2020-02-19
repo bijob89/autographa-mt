@@ -13,7 +13,7 @@ class CircleLoader extends Component {
     render() {
         const { classes } = this.props;
         return (
-            <div class="loading">Loading</div>
+            <div className="loading">Loading</div>
         )
     }
 }

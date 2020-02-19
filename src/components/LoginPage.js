@@ -26,7 +26,7 @@ import PopUpMessages from './PopUpMessages';
 
 const styles = theme => ({
     loginPage: {
-        marginTop: '5%'
+        marginTop: '120px'
     },
     forgot: {
         cursor: 'pointer',
@@ -175,7 +175,7 @@ class LoginPage extends Component {
         //cons
         const { classes } = this.props
         return (
-            <Grid item xs={12}>
+            <Grid container>
                 <Header />
                 <PopUpMessages />
                 <Container component="main" maxWidth="xs" className={classes.loginPage}>

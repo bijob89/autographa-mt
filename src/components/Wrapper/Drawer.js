@@ -127,8 +127,8 @@ class DrawerPane extends Component {
                     menus.map(menu => {
                         if(menu.roles.includes(current_user.role)){
                             return (
-                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white', margin: 0 }} key={menu.key} expanded={expanded === menu.key}>
-                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }}  onClick={() => this.setState({expanded: expanded === menu.key ? false : menu.key})}/>}>
+                                <ExpansionPanel style={{ backgroundColor: '#2a2a2fbd', color: 'white', margin: 0 }} key={menu.key} expanded={expanded === menu.key} onClick={() => this.setState({expanded: expanded === menu.key ? false : menu.key})}>
+                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon style={{ color: 'white' }}  />}>
                                         <Typography color="inherit" className={classes.heading}>{menu.name}</Typography>
                                     </ExpansionPanelSummary>
                                     <List>
@@ -137,8 +137,8 @@ class DrawerPane extends Component {
                                             menu.child.map(childMenu => {
                                                 if(childMenu.roles.includes(current_user.role)) {
                                                     return (
-                                                        <Link to={childMenu.link}>
-                                                            <ListItem button key={childMenu.key} className={classes.exp}
+                                                        <Link to={childMenu.link} key={childMenu.key}>
+                                                            <ListItem button  className={classes.exp}
                                                             // onClick={(e) => this.checkWhat(text)}
                                                             >
                                                                 <ListItemText disableTypography divider="true"

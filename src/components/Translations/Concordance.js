@@ -22,7 +22,7 @@ const styles = theme => ({
         padding: theme.spacing(),
         color: theme.palette.text.secondary,
         backgroundColor: '#fff',
-        height: '19vh',
+        height: '120px',
         overflow: 'auto',
         textAlign: 'justify',
         lineHeight: '20px',
@@ -33,7 +33,7 @@ const styles = theme => ({
         // marginRight: '2%',
         border: '1px solid "#2a2a2fbd"',
         boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-        height: '100%',
+        height: '320px',
         backgroundColor: '#fff',
       },
 });
@@ -131,7 +131,7 @@ class Concordance extends Component {
         return (
             <Grid container item xs={12} className={classes.containerGrid}>
                 {/* <Paper className={classes.tokenList}> */}
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}> */}
                     <Grid item xs={12}>
                         <ComponentHeading data={{
                             classes: classes,
@@ -143,8 +143,8 @@ class Concordance extends Component {
 
                         {this.displayConcordance(concordance[selectedBook.toLowerCase()], selectedToken)}
                     </Grid>
-                </Grid>
-                <Grid item xs={12}>
+                {/* </Grid> */}
+                {/* <Grid item xs={12}> */}
                     <Grid item xs={12}>
                         <ComponentHeading data={{
                             classes: classes,
@@ -155,7 +155,7 @@ class Concordance extends Component {
                     <Grid item xs={12} className={classes.textDisplay}>
                         {this.displayConcordance(concordance.all, selectedToken)}
                     </Grid>
-                </Grid>
+                {/* </Grid> */}
                 {/* </Paper> */}
             </Grid>
         )

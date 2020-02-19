@@ -20,7 +20,9 @@ import { withStyles } from '@material-ui/styles';
 
 const styles = makeStyles(theme => ({
   homePage: {
-      marginTop: '5%',
+      marginTop: '85px',
+      width: '100%',
+      margin:0
   },
   root: {
     flexGrow: 1,
@@ -46,9 +48,9 @@ class HomePage extends Component {
         return (
           <React.Fragment>
             <Header />
-            <Grid container spacing={3} lassName={classes.HomePage}>
-              <Grid item xs={12}>
-                <Card className={classes.card}>
+            <Grid container spacing={3} >
+              <Grid item xs={12}className={classes.homePage}>
+                <Card className={classes.card} style={{marginTop: '80px'}}>
                   <CardActionArea>
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="h2">

@@ -23,7 +23,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     loginPage: {
-      marginTop: '5%'
+      marginTop: '120px'
     },
     form: {
       // backgroundColor:'blue',
@@ -94,8 +94,8 @@ class SignUp extends Component {
         }
         const { classes } = this.props
         return (
-            <Grid item xs={12}>
-            <Header classes={classes} />
+            <Grid container>
+            <Header />
             <Container component="main" maxWidth="xs" className={classes.loginPage}>
                 <Typography component="h1" variant="h5">
                     Sign Up
