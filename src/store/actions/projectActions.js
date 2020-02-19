@@ -63,6 +63,7 @@ export const createProject = (apiData, close, clearState) => async dispatch => {
                 icon: 'success'
             }).then(msg => {
                 close()
+                clearState()
             })
             dispatch(setIsFetching(false));
         } else {

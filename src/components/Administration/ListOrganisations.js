@@ -165,7 +165,7 @@ class ListOrganisations extends Component {
           };
         return (
             <div className={classes.root}>
-                <PopUpMessages />
+                {/* <PopUpMessages /> */}
                 { isFetching && <CircleLoader />}
                 <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable 
@@ -175,10 +175,10 @@ class ListOrganisations extends Component {
                     options={options} 
                 />
                 </MuiThemeProvider>
-                <CreateOrganisation open={open} close={this.handleClose} />
-                <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
+                {/* <CreateOrganisation open={open} close={this.handleClose} /> */}
+                {/* <Fab aria-label={'add'} className={classes.fab} color={'primary'} onClick={() => this.setState({open: true})}>
                     <AddIcon />
-                </Fab>
+                </Fab> */}
             </div>
         )
     }

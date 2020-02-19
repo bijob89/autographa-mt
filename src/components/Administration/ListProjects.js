@@ -15,7 +15,7 @@ import MUIDataTable from "mui-datatables";
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import CreateProject from './CreateProject';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router-dom';
 
@@ -104,6 +104,15 @@ class ListProjects extends Component {
                 options: {
                     filter: true
                 }
+            },
+            {
+                name: 'Action',
+                options: {
+                    filter: true,
+                    customBodyRender: (value) => {
+                        return <Link to={`/app/projects/${value}`}>Assign users</Link>
+                    }
+                }
             }
         ]
     }
@@ -126,18 +135,19 @@ class ListProjects extends Component {
                 project.projectName.split('|')[0],
                 project.projectName.split('|')[1],
                 project.organisationName,
-                project.version.name
+                project.version.name,
+                project.projectId,
             ]
         });
         const options = {
             selectableRows: false,
-            onRowClick: rowData => this.setState({ redirect: rowData[0] })
+            // onRowClick: rowData => this.setState({ redirect: rowData[0] })
         };
         console.log('projects', this.props)
         const { redirect } = this.state;
-        if (redirect) {
-            return <Redirect to={`/app/projects/${redirect}`} />
-        }
+        // if (redirect) {
+        //     return <Redirect to={`/app/projects/${redirect}`} />
+        // }
         return (
             <div className={classes.root}>
                 {/* <PopUpMessages /> */}

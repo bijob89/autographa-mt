@@ -140,7 +140,7 @@ class AssignUser extends Component {
         // this.getAssignedUsers()
         const { dispatch, location } = this.props;
         const projectId = location.pathname.split('/').pop()
-        console.log('project id', projectId)
+        // console.log('project id', projectId)
         // dispatch(getUserBooks())
         dispatch(fetchUsers())
         dispatch(getAssignedUsers(projectId))
@@ -365,15 +365,18 @@ class AssignUser extends Component {
             // action:'add'
         }
         // this.assignUserToProject(apiData)
-        dispatch(assignUserToProject(apiData));
+        dispatch(assignUserToProject(apiData, this.closeBookListing));
         // this.setState({ userId: '', projectId: '', listBooks: false })
     }
 
 
     render() {
-        const { classes, isFetching } = this.props
+        const { classes, isFetching, location } = this.props
         const { userListing, listBooks } = this.state
-        console.log(this.state)
+        
+        // const { dispatch, location } = this.props;
+        // const projectId = location.pathname.split('/').pop()
+        // console.log(this.state)
         console.log('Assign User', this.props);
         return (
 
@@ -382,7 +385,7 @@ class AssignUser extends Component {
                     item xs={12}
                     className={classes.statisticsPane}
                 >
-                    <StatisticsSummary />
+                    <StatisticsSummary projectId={location.pathname.split('/').pop()} />
                 </Grid>
                 {/* <div className={classes.toolbar} /> */}
                 <Button
@@ -423,6 +426,7 @@ class AssignUser extends Component {
                     onClose={this.closeUserListing}
                     aria-labelledby="form-dialog-title"
                 >
+                    {isFetching && <CircleLoader />}
                     {/* <ComponentHeading data={{ classes: classes, text: "Add User", styleColor: '#2a2a2fbd' }} /> */}
                     <ComponentHeading data={{ classes: classes, text: "Add User", styleColor: '#2e639a' }} />
                     <DialogTitle id="form-dialog-title"> </DialogTitle>
@@ -443,6 +447,7 @@ class AssignUser extends Component {
                 <Dialog
                     open={listBooks}
                 >
+                    { isFetching && <CircleLoader /> }
                     <DialogContent>
                         <Grid container item spacing={1} className={classes.bookCard}>
                         {this.displayBooks()}

@@ -5,30 +5,37 @@ import swal from 'sweetalert';
 const accessToken = localStorage.getItem('accessToken');
 
 export const fetchOrganisations = () => async (dispatch) => {
-    try{
+    try {
         dispatch(setIsFetching(true))
         const data = await fetch(apiUrl + 'v1/autographamt/organisations', {
-            method:'GET',
+            method: 'GET',
             headers: {
                 "Authorization": 'bearer ' + accessToken
             }
         })
         const organisations = await data.json()
-        dispatch(setOrganisations(organisations));
+        if ("success" in organisations) {
+            swal({
+                title: 'Fetch Organisations',
+                text: 'Unable to fetch organisations, ' + organisations.message,
+                icon: 'error'
+            })
+        } else {
+            dispatch(setOrganisations(organisations));
+        }
     }
-    catch(e) {
+    catch (e) {
         swal({
             title: 'Organisations',
             text: 'Unable to fetch organisations, check your internet connection or contact admin',
             icon: 'error'
         })
-
     }
     dispatch(setIsFetching(false));
 }
 
 export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
-    try{
+    try {
         dispatch(setIsFetching(true));
         const update = await fetch(apiUrl + 'v1/autographamt/approvals/organisations', {
             method: 'POST',
@@ -39,14 +46,14 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
         })
         const response = await update.json();
         console.log('response', response)
-        if(response.success) {
+        if (response.success) {
             dispatch(fetchOrganisations());
             swal({
                 title: 'Organisation status',
                 text: 'Organisation status has been updated successfully',
                 icon: 'success'
             })
-        } else {    
+        } else {
             swal({
                 title: 'Organisation status',
                 text: 'Organisation status could not be updated. Please try again later',
@@ -54,7 +61,7 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
             })
         }
     }
-    catch(e) {
+    catch (e) {
         swal({
             title: 'Organisations status',
             text: 'Unable to update organisations, check your internet connection or contact admin',
@@ -65,24 +72,25 @@ export const updateOrganisationVerifiedStatus = (data) => async dispatch => {
     dispatch(setIsFetching(false));
 }
 
-export const createOrganisation = (apiData) => async dispatch =>{
+export const createOrganisation = (apiData, clear) => async dispatch => {
     dispatch(setIsFetching(true))
     try {
         const data = await fetch(apiUrl + '/v1/autographamt/organisations', {
-            method:'POST',
+            method: 'POST',
             body: JSON.stringify(apiData),
             headers: {
                 Authorization: 'bearer ' + accessToken
             }
         })
         const myJson = await data.json()
-        if(myJson.success){
+        if (myJson.success) {
             swal({
                 title: 'Create organisations',
                 text: myJson.message,
                 icon: 'success'
             })
-        }else{
+            clear()
+        } else {
             swal({
                 title: 'Create organisations',
                 text: myJson.message,
@@ -90,7 +98,7 @@ export const createOrganisation = (apiData) => async dispatch =>{
             })
         }
     }
-    catch(e) {
+    catch (e) {
         swal({
             title: 'Create Organisations',
             text: 'Unable to create organisations, check your internet connection or contact admin',

@@ -96,7 +96,7 @@ export const getAssignedUsers = (projectId) => async dispatch => {
     }
 }
 
-export const assignUserToProject = (apiData) => async dispatch => {
+export const assignUserToProject = (apiData, close) => async dispatch => {
     dispatch(setIsFetching(true))
     try {
         const data = await fetch(apiUrl + 'v1/autographamt/projects/assignments', {
@@ -105,21 +105,24 @@ export const assignUserToProject = (apiData) => async dispatch => {
         })
         const myJson = await data.json()
         console.log('Assigning', myJson)
-        dispatch(setIsFetching(false))
-        dispatch(getAssignedUsers(apiData.projectId))
+        // dispatch(setIsFetching(false))
+        if(myJson.success){
+            dispatch(getAssignedUsers(apiData.projectId));
+            close();
+        }
         swal({
             title: 'User assignment',
-            text: 'User has been assigned to project',
-            icon: 'success'
+            text: myJson.message,
+            icon: myJson.success ? "success" : "error"
         });
     } catch (ex) {
-        dispatch(setIsFetching(false))
         swal({
             title: 'User assignment',
             text: 'Unable to update user to project, check your internet connection or contact admin',
             icon: 'error'
         })
     }
+    dispatch(setIsFetching(false))
 }
 
 export const deleteUser = (apiData) => async dispatch => {

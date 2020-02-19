@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/styles';
 import { connect } from 'react-redux';
 import apiUrl from './GlobalUrl';
 import { displaySnackBar } from '../store/actions/sourceActions';
+import { fetchProjects } from '../store/actions/projectActions';
 
 
 const styles = theme => ({
@@ -26,8 +27,8 @@ class StatisticsSummary extends Component {
 
     async getProjectStatistcs() {
         try {
-            const { project } = this.props
-            const data = await fetch(apiUrl + 'v1/autographamt/statistics/projects/' + project.projectId)
+            const { projectId } = this.props
+            const data = await fetch(apiUrl + 'v1/autographamt/statistics/projects/' + projectId)
             const response = await data.json()
             if (response.success === false) {
                 this.props.displaySnackBar({
@@ -49,20 +50,31 @@ class StatisticsSummary extends Component {
     }
 
     componentDidMount() {
+        const { dispatch } = this.props;
+        dispatch(fetchProjects());
         this.getProjectStatistcs()
     }
 
     render() {
         const { statistics } = this.state
-        const { classes, project } = this.props
+        const { classes, projects, projectId } = this.props
+        // var 
+        var project = projects.map(item => {
+            if (item.projectId === parseInt(projectId)){
+                return item
+            }
+        });
+        project = project.length > 0 ? project[0] : {}
+        // console.log('project', project)
+        // console.log('statistics', this.props)
         return (
             <Grid container spacing={2}>
                 <Grid item xs={3} className={classes.statisticsPane}>
                     <Typography align="center" variant="h5">
-                        {(project) ? project.projectName.split("|")[0] : null}
+                        {(project.projectName) ? project.projectName.split("|")[0] : null}
                     </Typography>
                     <Typography align="center" variant="body1" gutterBottom>
-                        {(project) ? project.version.name : null}
+                        {(project.projectName) ? project.version.name : null}
                     </Typography>
                 </Grid>
                 <Grid item xs={3} className={classes.statisticsPane}>
@@ -96,14 +108,12 @@ class StatisticsSummary extends Component {
 
 const mapStateToProps = state => {
     return {
-        project: state.sources.project
+        projects: state.project.projects
     }
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
-        displaySnackBar: (popUp) => dispatch(displaySnackBar(popUp))
-    }
-}
+const mapDispatchToProps = dispatch => ({
+    dispatch
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(StatisticsSummary))
