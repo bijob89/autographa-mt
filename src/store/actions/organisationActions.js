@@ -15,11 +15,12 @@ export const fetchOrganisations = () => async (dispatch) => {
         })
         const organisations = await data.json()
         if ("success" in organisations) {
-            swal({
-                title: 'Fetch Organisations',
-                text: 'Unable to fetch organisations, ' + organisations.message,
-                icon: 'error'
-            })
+            // swal({
+            //     title: 'Fetch Organisations',
+            //     text: 'Unable to fetch organisations, ' + organisations.message,
+            //     icon: 'error'
+            // })
+            console.log('No organisation data')
         } else {
             dispatch(setOrganisations(organisations));
         }

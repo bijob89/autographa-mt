@@ -59,14 +59,17 @@ class StatisticsSummary extends Component {
         const { statistics } = this.state
         const { classes, projects, projectId } = this.props
         // var 
-        var project = projects.map(item => {
+        var project = projects.filter(item => {
+            console.log('item', item)
+            console.log('projectId', projectId)
             if (item.projectId === parseInt(projectId)){
                 return item
             }
         });
+        console.log('before project', project)
         project = project.length > 0 ? project[0] : {}
-        // console.log('project', project)
-        // console.log('statistics', this.props)
+        console.log('project', project)
+        console.log('statistics', this.props)
         return (
             <Grid container spacing={2}>
                 <Grid item xs={3} className={classes.statisticsPane}>

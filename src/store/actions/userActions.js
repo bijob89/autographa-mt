@@ -118,7 +118,7 @@ export const assignUserToProject = (apiData, close) => async dispatch => {
     } catch (ex) {
         swal({
             title: 'User assignment',
-            text: 'Unable to update user to project, check your internet connection or contact admin',
+            text: 'Unable to update user to project, check your internet connection or contact admin admin ' + ex,
             icon: 'error'
         })
     }

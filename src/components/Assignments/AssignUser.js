@@ -195,7 +195,7 @@ class AssignUser extends Component {
             // action:'add'
         }
         // this.assignUserToProject(apiData)
-        dispatch(assignUserToProject(apiData))
+        dispatch(assignUserToProject(apiData, this.closeUserListing))
     }
 
     closeUserListing = () => {

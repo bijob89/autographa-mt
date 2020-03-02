@@ -137,7 +137,7 @@ class UploadSource extends Component {
             'revision': this.state.revision,
             'license': this.state.license,
         }
-        this.uploadVersionDetails(apiData)
+        // this.uploadVersionDetails(apiData)
         dispatch(createSource(apiData, close))
 
     }

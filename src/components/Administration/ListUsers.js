@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TableHead from '@material-ui/core/TableHead';
 import { Checkbox, Paper, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import ComponentHeading from '../ComponentHeading';
 import apiUrl from '../GlobalUrl'
 import PopUpMessages from '../PopUpMessages'
@@ -101,10 +102,18 @@ class ListUsers extends Component {
                     filter: false,
                     customBodyRender: (value, row) => {
                         // console.log(rowIndex)
-                        return <Switch
-                                checked={value}
-                                // onChange={() => this.changeAdminStatus(row.rowData[0], !value)}
-                            />
+                        return <FormControlLabel
+                        control={
+                            <Switch
+                            checked={value}
+                            disabled
+                            // onChange={() => this.changeAdminStatus(row.rowData[0], !value)}
+                        />
+                        }
+                        label={value ? "Verified" : "Unverified"}
+                      />
+                        
+                        
                     }
                 }
             },
@@ -113,10 +122,19 @@ class ListUsers extends Component {
                 options: {
                     filter: false,
                     customBodyRender: (value, row) => {
-                        return <Switch
+                        const { current_user } = this.props;
+                        return <FormControlLabel
+                        control={
+                            <Switch
                                 checked={value}
                                 onChange={() => this.changeAdminStatus(row.rowData[0], !value)}
+                                disabled={current_user.role === 'm' ? true : false}
                             />
+                        }
+                        label={value ? "Admin" : "Member"}
+                      />
+                        
+                        
                     }
                 }
             }
@@ -183,7 +201,8 @@ class ListUsers extends Component {
 
 const mapStateToProps = (state) => ({
     users: state.user.users,
-    isFetching: state.user.isFetching
+    isFetching: state.user.isFetching,
+    current_user: state.auth.current_user
 })
 
 const mapDispatchToProps = (dispatch) => ({
