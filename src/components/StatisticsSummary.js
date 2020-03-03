@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import apiUrl from './GlobalUrl';
 import { displaySnackBar } from '../store/actions/sourceActions';
 import { fetchProjects } from '../store/actions/projectActions';
+import swal from 'sweetalert';
 
 
 const styles = theme => ({
@@ -30,22 +31,33 @@ class StatisticsSummary extends Component {
             const { projectId } = this.props
             const data = await fetch(apiUrl + 'v1/autographamt/statistics/projects/' + projectId)
             const response = await data.json()
+            // console.log('statistics response', response)
             if (response.success === false) {
-                this.props.displaySnackBar({
-                    snackBarMessage: response.message,
-                    snackBarOpen: true,
-                    snackBarVariant: "error"
+                swal({
+                    title: 'Statistics',
+                    text: 'Unable to fetch statistics information: ' + response.message,
+                    icon: 'error'
                 })
+                // this.props.displaySnackBar({
+                //     snackBarMessage: response.message,
+                //     snackBarOpen: true,
+                //     snackBarVariant: "error"
+                // })
             } else {
                 this.setState({ statistics: response })
             }
         }
         catch (ex) {
-            this.props.displaySnackBar({
-                snackBarMessage: "Server Error",
-                snackBarOpen: true,
-                snackBarVariant: "error"
+            swal({
+                title: 'Statistics',
+                text: 'Unable to fetch statistics, check your internet connection or contact admin ' + ex,
+                icon: 'error'
             })
+            // this.props.displaySnackBar({
+            //     snackBarMessage: "Server Error",
+            //     snackBarOpen: true,
+            //     snackBarVariant: "error"
+            // })
         }
     }
 
